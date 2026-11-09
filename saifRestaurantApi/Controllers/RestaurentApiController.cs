@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using saifRestaurantApi.Dto;
 using SaifRestaurantApi.Data;
 using SaifRestaurantApi.DTOs;
 using SaifRestaurantApi.Models;
 using SaifRestaurantApi.Models;
+using System.Globalization;
 
 namespace SaifRestaurantApi.Controllers;
 
@@ -23,7 +25,17 @@ public class DashboardController : ControllerBase
     public async Task<IActionResult> Get()
     {
         var tickets = await _db.OrderTickets.Include(t => t.Dishes).ToListAsync();
-        var reservations = await _db.Reservations.ToListAsync();
+        var today = DateTime.Today;
+        var tomorrow = today.AddDays(1);
+
+        var todayReservations = await _db.Reservations
+            .Where(r => r.Date >= today && r.Date < tomorrow)
+            .ToListAsync();
+
+        var reservations = todayReservations
+            .OrderBy(r => ParseTime(r.Time))
+            .ToList();
+
 
         var mostOrdered = await _db.OrderDishes
             .GroupBy(d => d.Name)
@@ -111,5 +123,70 @@ public class DashboardController : ControllerBase
 
         return Ok(order);
     }
+   
+
+
+    private static DateTime ParseTime(string time)
+    {
+        return DateTime.TryParseExact(
+            time, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed)
+            ? parsed
+            : DateTime.MaxValue; 
+    }
+
+
+    [HttpPost("reservations")]
+    public async Task<IActionResult> CreateReservation(CreateReservationDto request)
+    {
+        
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return BadRequest(new { message = "Please enter your name" });
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Phone))
+        {
+            return BadRequest(new { message = "Please enter a phone number" });
+        }
+
+        if (request.Guests < 1 || request.Guests > 8)
+        {
+            return BadRequest(new { message = "Guests must be between 1 and 8" });
+        }
+
+        if (request.Date.Date < DateTime.Today)
+        {
+            return BadRequest(new { message = "The date cannot be in the past" });
+        }
+
+        if (ParseTime(request.Time) == DateTime.MaxValue)
+        {
+            return BadRequest(new { message = "Please choose a valid time" });
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Seating))
+        {
+            return BadRequest(new { message = "Please choose a seating area" });
+        }
+
+        
+        var reservation = new Reservation
+        {
+            Name = request.Name.Trim(),
+            Phone = request.Phone.Trim(),
+            Date = request.Date.Date,
+            Time = request.Time,
+            Guests = request.Guests,
+            Table = request.Seating,
+        };
+
+        _db.Reservations.Add(reservation);
+        await _db.SaveChangesAsync();
+
+        return Ok(reservation);
+    }
+
+
+
 
 }
