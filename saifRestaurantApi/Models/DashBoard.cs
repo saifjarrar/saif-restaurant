@@ -38,6 +38,8 @@
         public string Time { get; set; } = "";
         public int Guests { get; set; }
         public string Table { get; set; } = "";
+        public string Phone { get; set; } = string.Empty;  
+        public DateTime Date { get; set; }
     }
     public class MostOrdered
     {
