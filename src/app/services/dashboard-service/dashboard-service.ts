@@ -84,4 +84,7 @@ export class DashboardService {
   createReservation(reservation: CreateReservationRequest): Observable<Reservation> {
     return this.http.post<Reservation>(`${this.baseUrl}/reservations`, reservation);
   }
+  cancelOrder(id: number): Observable<OrderTicket> {
+    return this.http.put<OrderTicket>(`${this.baseUrl}/orders/${id}/cancel`, {});
+  }
 }
