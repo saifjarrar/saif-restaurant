@@ -446,3 +446,34 @@
   .head-actions { gap: 10px; }
   .head-actions .count { display: none; }
 }
+.ticket.cancelled {
+  border-top-color: #dc3545;
+  background: #fff5f5;
+}
+
+.status.cancelled {
+  color: #842029;
+  background: #f8d7da;
+}
+
+.ticket.cancelled .t-top b,
+.ticket.cancelled .t-table,
+.ticket.cancelled li,
+.ticket.cancelled li span {
+  text-decoration: line-through;
+}
+
+.ticket .t-btn.cancel-btn {
+  color: #fff;
+  background: #dc3545;
+}
+
+.ticket .t-btn.cancel-btn:hover:not(:disabled) {
+  background: #b02a37;
+}
+
+.ticket .t-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
