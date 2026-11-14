@@ -15,10 +15,12 @@
 .today { padding: 9px 16px; border-radius: 99px; font-size: 13.5px; font-weight: 600; color: var(--brand-dark); background: #fff; border: 1px solid #b3c0b6; }
 .today b { font-weight: 800; }
 
-.layout { display: grid; grid-template-columns: 1.7fr 1fr; gap: 28px; align-items: start; }
+/* minmax(0, ...) is what stops a wide child (like the scrolling tabs) from
+   stretching the column and pushing half of the cards off the screen */
+.layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 28px; align-items: start; }
 
 /* ---------- Filter tabs (radios, CSS only) ---------- */
-.left { position: relative; }
+.left { position: relative; min-width: 0; }
 .filter { position: absolute; opacity: 0; pointer-events: none; }
 
 .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
@@ -31,6 +33,7 @@
   border: 1.5px solid #9fb0a4;
   border-radius: 99px;
   cursor: pointer;
+  white-space: nowrap;
   transition: background .25s, color .25s, border-color .25s, transform .25s var(--ease);
 }
 .tabs label span { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 99px; background: #e3eee8; color: var(--brand-dark); transition: background .25s, color .25s; }
@@ -61,14 +64,23 @@
 #f-cancelled:checked ~ .orders .order:not(.cancelled) { display: none; }
 
 /* ---------- Orders list ----------
-   One row = 5 cells: who | dishes | time | total | status
-   Every cell is ONE grid item, that is what keeps the rows aligned. */
-.orders { list-style: none; display: grid; gap: 10px; }
+   The layout of a row depends on the WIDTH OF THE LIST itself (container query),
+   not on the screen width. So it adapts to any space without breaking text.
+
+   - Narrow list (default): a small card
+        row 1:  order number + table          |  status
+        row 2:  the dishes (full width)
+        row 3:  time                          |  total
+   - Wide list (660px or more): one line
+        number + table | dishes | time | total | status
+*/
+.orders { list-style: none; display: grid; gap: 10px; container-type: inline-size; container-name: orders; }
+
 .order {
   display: grid;
-  grid-template-columns: 130px 1fr 84px 80px 124px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 12px;
   align-items: center;
-  gap: 16px;
   padding: 16px 20px;
   color: var(--ink);
   background: #fff;
@@ -87,21 +99,39 @@
 .order.selected  { box-shadow: 0 0 0 2px rgba(240, 168, 44, .55), 0 18px 28px -20px rgba(11, 54, 43, .6); }
 .order.cancelled .what, .order.cancelled .total { text-decoration: line-through; color: #6f7c74; }
 
+/* where each cell sits in the narrow card */
+.who          { grid-column: 1; grid-row: 1; min-width: 0; }
+.status       { grid-column: 2; grid-row: 1; }
+.what         { grid-column: 1 / -1; grid-row: 2; }
+.order time   { grid-column: 1; grid-row: 3; }
+.total        { grid-column: 2; grid-row: 3; }
+
 .who b { display: block; font-size: 15px; font-weight: 700; color: var(--ink); }
 .who small { display: block; margin-top: 2px; font-size: 13px; font-weight: 600; color: #2c3d35; }
 
 /* dishes: one line per dish, all inside the same cell */
-.what { list-style: none; display: grid; gap: 4px; font-size: 14px; line-height: 1.4; color: var(--ink); }
+.what { list-style: none; display: grid; gap: 4px; min-width: 0; font-size: 14px; line-height: 1.4; color: var(--ink); }
+.what li { overflow-wrap: anywhere; }
 .what li span { display: inline-block; min-width: 26px; font-weight: 700; color: var(--brand); }
 
 .order time { font-size: 13px; font-weight: 600; color: #2c3d35; }
 .total { font-family: "Fraunces", Georgia, serif; font-size: 17px; font-weight: 700; color: var(--brand-dark); text-align: right; }
 
-.status { justify-self: end; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
+/* every status pill has the same width, so the column looks tidy */
+.status { justify-self: end; min-width: 112px; text-align: center; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
 .status.received  { color: #0b362b; background: #d3e4db; }
 .status.cooking   { color: #5c3700; background: #fde9bf; }
 .status.served    { color: #14583a; background: #cdeedd; }
 .status.cancelled { color: #8f2a20; background: #fbe0dc; }
+
+/* wide list: everything in one line */
+@container orders (min-width: 660px) {
+  .order {
+    grid-template-columns: 110px minmax(170px, 1fr) 78px 72px 112px;
+    gap: 16px;
+  }
+  .who, .status, .what, .order time, .total { grid-column: auto; grid-row: auto; }
+}
 
 /* ---------- Receipt ---------- */
 .receipt-wrap { position: sticky; top: 96px; filter: drop-shadow(0 24px 24px rgba(11, 54, 43, .22)); }
@@ -142,20 +172,14 @@
 
 /* ---------- Responsive ---------- */
 @media (max-width: 960px) {
-  .layout { grid-template-columns: 1fr; }
+  .layout { grid-template-columns: minmax(0, 1fr); }
   .receipt-wrap { position: static; }
 }
 @media (max-width: 640px) {
   .page { padding: 28px 16px 48px; }
+  .order { padding: 14px 16px; }
 
-  /* row 1: who + status | row 2: dishes | row 3: time + total */
-  .order { grid-template-columns: 1fr auto; gap: 8px 12px; padding: 14px 16px; }
-  .who    { grid-row: 1; grid-column: 1; }
-  .status { grid-row: 1; grid-column: 2; }
-  .what   { grid-row: 2; grid-column: 1 / -1; }
-  .order time { grid-row: 3; grid-column: 1; }
-  .total  { grid-row: 3; grid-column: 2; }
-
+  /* the tabs scroll sideways inside their own box */
   .tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; }
   .tabs label { flex: none; }
 }
