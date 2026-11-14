@@ -65,27 +65,54 @@ public class DashboardController : ControllerBase
     [Authorize(Roles = SD.Role_Admin)]
     public async Task<IActionResult> Advance(int id)
     {
-        var order = await _db.OrderTickets
+        var order = await _db.OrderTickets.AsNoTracking()
             .Include(t => t.Dishes)
             .FirstOrDefaultAsync(t => t.Id == id);
 
         if (order is null)
-            return NotFound(new { message = "Order not found" });
+            return NotFound(new { message = "Order not found." });
 
-        if (order.Orderstatus == "Received")
+        var currentStatus = order.Orderstatus;
+        var nextStatus = currentStatus switch
         {
-            order.Orderstatus = "In The Kitchen";
-        }
-        else if (order.Orderstatus == "In The Kitchen")
-        {
-            order.Orderstatus = "Served";
-        }
-        else if(order.Orderstatus=="Served")
-        {
-            order.Orderstatus = "Received";
-        }
+            "Received" => "In The Kitchen",
+            "In The Kitchen" => "Served",
+            "Served" => "Received",
+            _ => null
+        };
 
-        await _db.SaveChangesAsync();
+        if (nextStatus is null)
+            return Conflict(new { message = "This order cannot change status." });
+
+        var updated = await _db.OrderTickets
+            .Where(t => t.Id == id && t.Orderstatus == currentStatus)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(t => t.Orderstatus, nextStatus));
+
+        if (updated == 0)
+            return Conflict(new { message = "Order status changed. Refresh the dashboard." });
+
+        order.Orderstatus = nextStatus;
+        return Ok(order);
+    }
+
+    [HttpPut("orders/{id}/cancel")]
+    [Authorize(Roles = SD.Role_Admin)]
+    public async Task<IActionResult> Cancel(int id)
+    {
+        await _db.OrderTickets
+            .Where(t => t.Id == id &&
+                (t.Orderstatus == "Received" || t.Orderstatus == "In The Kitchen"))
+            .ExecuteUpdateAsync(setters => setters.SetProperty(t => t.Orderstatus, "Cancelled"));
+
+        var order = await _db.OrderTickets.AsNoTracking()
+            .Include(t => t.Dishes)
+            .FirstOrDefaultAsync(t => t.Id == id);
+
+        if (order is null)
+            return NotFound(new { message = "Order not found." });
+
+        if (order.Orderstatus != "Cancelled")
+            return Conflict(new { message = "Only active orders can be cancelled." });
 
         return Ok(order);
     }
