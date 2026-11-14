@@ -116,56 +116,98 @@ public class DashboardController : ControllerBase
 
         return Ok(order);
     }
+    private static readonly IReadOnlyDictionary<string, decimal> MenuPrices =
+    new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Hummus"] = 1.99m,
+        ["Falafel"] = 0.99m,
+        ["Fattoush Salad"] = 2.99m,
+        ["Mutabbal"] = 2.49m,
+        ["Kibbeh"] = 3.99m,
+        ["Chicken Shawarma"] = 5.99m,
+        ["Beef Kofta"] = 6.99m,
+        ["Mansaf"] = 9.99m,
+        ["Lamb Tagine"] = 7.99m,
+        ["Beef Burger"] = 7.49m,
+        ["Grilled Chicken"] = 8.99m,
+        ["Grilled Salmon"] = 12.99m,
+        ["Grilled sea bass"] = 13.99m,
+        ["Shish Tawook"] = 9.99m,
+        ["Grilled Lamb Chops"] = 14.99m,
+        ["Knafeh"] = 4.99m,
+        ["Baklava"] = 3.99m,
+        ["Chocolate Mousse"] = 5.99m,
+        ["Rice Pudding"] = 2.99m,
+        ["Mint Lemonade"] = 1.99m,
+        ["Pomegranate Juice"] = 2.49m,
+        ["Turkish Coffee"] = 2.99m,
+        ["Arabic Tea"] = 1.49m,
+        ["Rose Water Lemonade"] = 2.99m,
+    };
     [HttpPost("orders")]
     [Authorize(Roles = SD.Role_Admin)]
     public async Task<IActionResult> CreateOrder(CreateOrderDto request)
     {
         if (string.IsNullOrWhiteSpace(request.Table))
+            return BadRequest(new { message = "Please choose a table." });
+
+        if (request.Dishes is null || request.Dishes.Count == 0)
+            return BadRequest(new { message = "Please add at least one dish." });
+
+        var dishes = new List<OrderDish>();
+        decimal total = 0;
+
+        foreach (var dish in request.Dishes)
         {
-            return BadRequest(new { message = "Please choose a table" });
+            if (dish is null || string.IsNullOrWhiteSpace(dish.Name) || dish.Quantity <= 0)
+            {
+                return BadRequest(new
+                {
+                    message = "Choose a dish and enter a quantity of at least 1."
+                });
+            }
+
+            var name = dish.Name.Trim();
+
+            if (!MenuPrices.TryGetValue(name, out var unitPrice))
+                return BadRequest(new { message = $"Unknown dish: {name}" });
+
+            dishes.Add(new OrderDish
+            {
+                Name = name,
+                Quantity = dish.Quantity,
+                UnitPrice = unitPrice,
+            });
+
+            total += unitPrice * dish.Quantity;
         }
 
-        var validDishes = request.Dishes
-            .Where(d => !string.IsNullOrWhiteSpace(d.Name) && d.Quantity > 0)
-            .ToList();
-
-   
-        if (validDishes.Count == 0)
-        {
-            return BadRequest(new { message = "Please add at least one dish" });
-        }
+        var createdAt = DateTimeOffset.UtcNow;
+        const int preparationMinutes = 20;
 
         var order = new OrderTicket
         {
-            Ordernum = string.Empty,        
-            Table = request.Table,
+            Table = request.Table.Trim(),
             Orderstatus = "Received",
-            Readytime = "20 mins",
-            Dishes = validDishes
-                .Select(d => new OrderDish { Name = d.Name, Quantity = d.Quantity })
-                .ToList(),
+            Readytime = $"{preparationMinutes} mins",
+            CreatedAt = createdAt,
+            ReadyAt = createdAt.AddMinutes(preparationMinutes),
+            Total = total,
+            Dishes = dishes,
         };
 
-        
+        await using var transaction = await _db.Database.BeginTransactionAsync();
+
         _db.OrderTickets.Add(order);
         await _db.SaveChangesAsync();
 
         order.Ordernum = "#" + (2480 + order.Id);
         await _db.SaveChangesAsync();
 
+        await transaction.CommitAsync();
+
         return Ok(order);
     }
-   
-
-
-    private static DateTime ParseTime(string time)
-    {
-        return DateTime.TryParseExact(
-            time, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed)
-            ? parsed
-            : DateTime.MaxValue; 
-    }
-
 
     [HttpPost("reservations")]
     [Authorize]
