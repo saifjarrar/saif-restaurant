@@ -12,6 +12,7 @@ export interface RestaurantInfo {
 export interface OrderDish {
   name: string;
   quantity: number;
+  unitPrice: number | null;
 }
 
 export interface OrderTicket {
@@ -21,10 +22,10 @@ export interface OrderTicket {
   dishes: OrderDish[];
   orderstatus: string;
   readytime: string;
-  total: number;
-  time: string;
+  total: number | null;
+  createdAt: string | null;
+  readyAt: string | null;
 }
-
 export interface Reservation {
   name: string;
   time: string;
