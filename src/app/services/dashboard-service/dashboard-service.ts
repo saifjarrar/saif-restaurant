@@ -21,6 +21,8 @@ export interface OrderTicket {
   dishes: OrderDish[];
   orderstatus: string;
   readytime: string;
+  total: number;
+  time: string;
 }
 
 export interface Reservation {
@@ -49,6 +51,9 @@ export interface DashboardData {
   tonightreservations: Reservation[];
   mostordered: MostOrdered[];
 }
+export interface OrderData {
+  ordertickets: OrderTicket[];
+}
 export interface CreateReservationRequest {
   name: string;
   phone: string;
@@ -65,6 +70,9 @@ export class DashboardService {
 
   getDashboard(): Observable<DashboardData> {
     return this.http.get<DashboardData>(this.baseUrl);
+  }
+  getorder() {
+    return this.http.get<OrderData>(this.baseUrl);
   }
 
   advanceOrder(id: number): Observable<OrderTicket> {
