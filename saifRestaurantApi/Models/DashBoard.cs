@@ -22,6 +22,9 @@
         public List<OrderDish> Dishes { get; set; } = new();
         public string Orderstatus { get; set; } = string.Empty;
         public string Readytime { get; set; } = string.Empty;
+        public decimal? Total { get; set; }
+        public DateTimeOffset? CreatedAt { get; set; }
+        public DateTimeOffset? ReadyAt { get; set; }
     }
     public class OrderDish
     {
@@ -29,6 +32,7 @@
         public int OrderTicketId { get; set; }
         public string Name { get; set; } = "";
         public int Quantity { get; set; }
+        public decimal? UnitPrice { get; set; }
     }
 
     public class Reservation

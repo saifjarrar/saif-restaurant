@@ -238,6 +238,9 @@ namespace saifRestaurantApi.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrderTicketId");
@@ -253,6 +256,9 @@ namespace saifRestaurantApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("Ordernum")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -261,6 +267,9 @@ namespace saifRestaurantApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTimeOffset?>("ReadyAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("Readytime")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -268,6 +277,9 @@ namespace saifRestaurantApi.Migrations
                     b.Property<string>("Table")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("Total")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
