@@ -9,6 +9,7 @@ import {
 } from '../../services/dashboard-service/dashboard-service';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { finalize, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -41,15 +42,35 @@ export class Dashboard implements OnInit {
     });
   }
 
+  readonly savingOrderIds = signal<number[]>([]);
+
   markAs(id: number): void {
-    this.dashboardService.advanceOrder(id).subscribe({
-      next: (updated: OrderTicket) => {
-        this.ordertickets.update((list) => list.map((o) => (o.id === updated.id ? updated : o)));
-      },
-      error: (err: any) => {
-        alert(err.error?.message ?? err.message);
-      },
-    });
+    this.saveOrder(id, this.dashboardService.advanceOrder(id));
+  }
+
+  cancelOrder(id: number): void {
+    this.saveOrder(id, this.dashboardService.cancelOrder(id));
+  }
+
+  private saveOrder(id: number, request: Observable<OrderTicket>): void {
+    if (this.savingOrderIds().includes(id)) return;
+
+    this.savingOrderIds.update((ids) => [...ids, id]);
+
+    request
+      .pipe(
+        finalize(() => {
+          this.savingOrderIds.update((ids) => ids.filter((orderId) => orderId !== id));
+        }),
+      )
+      .subscribe({
+        next: (updated) => {
+          this.ordertickets.update((orders) =>
+            orders.map((order) => (order.id === updated.id ? updated : order)),
+          );
+        },
+        error: (err) => alert(err.error?.message ?? 'Could not update the order.'),
+      });
   }
 
   barWidth(quantity: number): number {
