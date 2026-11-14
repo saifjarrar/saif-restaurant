@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using saifRestaurantApi.Dto;
 using SaifRestaurantApi.Data;
 using SaifRestaurantApi.DTOs;
 using SaifRestaurantApi.Models;
 using SaifRestaurantApi.Models;
+using SaifRestaurantApi.Utility;
 using System.Globalization;
 
 namespace SaifRestaurantApi.Controllers;
@@ -22,6 +24,7 @@ public class DashboardController : ControllerBase
 
     public DashboardController(AppDBContext db) { _db = db; }
     [HttpGet]
+    [Authorize(Roles = SD.Role_Admin)]
     public async Task<IActionResult> Get()
     {
         var tickets = await _db.OrderTickets.Include(t => t.Dishes).ToListAsync();
@@ -59,6 +62,7 @@ public class DashboardController : ControllerBase
         });
     }
     [HttpPut("orders/{id}/advance")]
+    [Authorize(Roles = SD.Role_Admin)]
     public async Task<IActionResult> Advance(int id)
     {
         var order = await _db.OrderTickets
@@ -86,6 +90,7 @@ public class DashboardController : ControllerBase
         return Ok(order);
     }
     [HttpPost("orders")]
+    [Authorize(Roles = SD.Role_Admin)]
     public async Task<IActionResult> CreateOrder(CreateOrderDto request)
     {
         if (string.IsNullOrWhiteSpace(request.Table))
@@ -136,6 +141,7 @@ public class DashboardController : ControllerBase
 
 
     [HttpPost("reservations")]
+    [Authorize]
     public async Task<IActionResult> CreateReservation(CreateReservationDto request)
     {
         
