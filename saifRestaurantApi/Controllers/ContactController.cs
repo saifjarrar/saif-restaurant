@@ -1,8 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Net.Mail;
+﻿using MailKit;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MimeKit;
+using System.ComponentModel.DataAnnotations;
 
 namespace SaifRestaurantApi.Controllers;
 
@@ -26,46 +28,51 @@ public class ContactController(
             logger.LogError("Contact email settings are missing.");
             return StatusCode(503, new { message = "Contact email is unavailable." });
         }
-
         var replyTo = request.Email.Trim();
-        if (!MailAddress.TryCreate(replyTo, out var visitor) ||
+        if (!MailboxAddress.TryParse(replyTo, out var visitor) ||
             !string.Equals(visitor.Address, replyTo, StringComparison.OrdinalIgnoreCase))
         {
             return BadRequest(new { message = "Enter a valid email address." });
         }
 
-        using var message = new MailMessage(email, email)
+        var message = new MimeMessage();
+        var mailbox = MailboxAddress.Parse(email);
+        message.From.Add(mailbox);
+        message.To.Add(mailbox);
+        message.ReplyTo.Add(visitor);
+        message.Subject = "New message from Saif Restaurant";
+        message.Body = new TextPart("plain")
         {
-            Subject = "New message from Saif Restaurant",
-            Body = $"""
-                Name: {request.Name}
-                Email: {visitor.Address}
-                Phone: {request.Phone}
-                Topic: {request.Topic}
+            Text = $"""
+        Name: {request.Name}
+        Email: {visitor.Address}
+        Phone: {request.Phone}
+        Topic: {request.Topic}
 
-                {request.Message}
-                """
+        {request.Message}
+        """
         };
-        message.ReplyToList.Add(visitor);
 
-        using var smtp = new SmtpClient("smtp.gmail.com", 587)
-        {
-            EnableSsl = true,
-            Credentials = new NetworkCredential(email, password)
-        };
+        using var smtp = new SmtpClient();
 
         try
         {
-            await smtp.SendMailAsync(message, cancellationToken);
+            await smtp.ConnectAsync(
+                "smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect, cancellationToken);
+            await smtp.AuthenticateAsync(email, password, cancellationToken);
+            await smtp.SendAsync(message, cancellationToken);
             return NoContent();
         }
-        catch (SmtpException ex)
+        catch (Exception ex) when (ex is SmtpCommandException or SmtpProtocolException
+            or MailKit.Security.AuthenticationException or SslHandshakeException
+            or IOException or System.Net.Sockets.SocketException)
         {
             logger.LogError(ex, "Could not send contact message.");
             return StatusCode(502, new { message = "Could not send your message. Try again later." });
         }
     }
 }
+
 
 public sealed class ContactRequest
 {
