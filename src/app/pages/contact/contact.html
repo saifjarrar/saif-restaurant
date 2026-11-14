@@ -9,44 +9,89 @@
 
   <div class="layout">
     <!-- Message form (static, choices work with CSS only) -->
-    <section class="form-card" aria-label="Send a message">
+    <form
+      class="form-card"
+      aria-label="Send a message"
+      #contactForm
+      (submit)="send($event, contactForm)"
+    >
       <h2>Send a message</h2>
 
       <div class="group">
         <h3>What is it about?</h3>
         <div class="chips">
-          <input class="pick" type="radio" name="topic" id="tp-1" checked />
+          <input class="pick" type="radio" name="topic" id="tp-1" value="A question" checked />
           <label for="tp-1">A question</label>
-          <input class="pick" type="radio" name="topic" id="tp-2" />
+
+          <input class="pick" type="radio" name="topic" id="tp-2" value="Feedback" />
           <label for="tp-2">Feedback</label>
-          <input class="pick" type="radio" name="topic" id="tp-3" />
+
+          <input class="pick" type="radio" name="topic" id="tp-3" value="Events and catering" />
           <label for="tp-3">Events and catering</label>
-          <input class="pick" type="radio" name="topic" id="tp-4" />
+
+          <input class="pick" type="radio" name="topic" id="tp-4" value="A problem with my order" />
           <label for="tp-4">A problem with my order</label>
         </div>
       </div>
 
       <div class="fields">
         <div class="field">
-          <input type="text" id="c-name" placeholder=" " autocomplete="name" />
+          <input
+            type="text"
+            id="c-name"
+            name="name"
+            placeholder=" "
+            autocomplete="name"
+            maxlength="100"
+            required
+          />
           <label for="c-name">Full name</label>
         </div>
+
         <div class="field">
-          <input type="tel" id="c-phone" placeholder=" " autocomplete="tel" />
+          <input
+            type="tel"
+            id="c-phone"
+            name="phone"
+            placeholder=" "
+            autocomplete="tel"
+            maxlength="30"
+          />
           <label for="c-phone">Phone number</label>
         </div>
+
         <div class="field wide">
-          <input type="email" id="c-email" placeholder=" " autocomplete="email" />
+          <input
+            type="email"
+            id="c-email"
+            name="email"
+            placeholder=" "
+            autocomplete="email"
+            maxlength="254"
+            required
+          />
           <label for="c-email">Email address</label>
         </div>
+
         <div class="field wide">
-          <textarea id="c-message" rows="5" placeholder=" "></textarea>
+          <textarea
+            id="c-message"
+            name="message"
+            rows="5"
+            placeholder=" "
+            maxlength="3000"
+            required
+          ></textarea>
           <label for="c-message">Your message</label>
         </div>
       </div>
 
-      <button class="btn" type="button">Send message</button>
-    </section>
+      <button class="btn" type="submit" [disabled]="sending()">
+        {{ sending() ? 'Sending…' : 'Send message' }}
+      </button>
+
+      <p role="status">{{ status() }}</p>
+    </form>
 
     <!-- Side -->
     <aside class="side">
@@ -90,25 +135,27 @@
 
       <section class="card map-card">
         <div class="map">
-  <iframe
-    src="https://www.google.com/maps?q=31.998653,35.872425&output=embed"
-    width="100%"
-    height="170"
-    style="border:0;"
-    allowfullscreen
-    loading="lazy"
-    referrerpolicy="no-referrer-when-downgrade">
-  </iframe>
-</div>
+          <iframe
+            src="https://www.google.com/maps?q=31.998653,35.872425&output=embed"
+            width="100%"
+            height="170"
+            style="border: 0"
+            allowfullscreen
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          >
+          </iframe>
+        </div>
         <p class="map-text">
-  <b>Find us</b> at Madena Munawara ST 400, Amman.
-  <a
-    href="https://www.google.com/maps?q=31.998653,35.872425"
-    target="_blank"
-    rel="noopener noreferrer">
-    Get directions →
-  </a>
-</p>
+          <b>Find us</b> at Madena Munawara ST 400, Amman.
+          <a
+            href="https://www.google.com/maps?q=31.998653,35.872425"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Get directions →
+          </a>
+        </p>
       </section>
 
       <section class="card">
