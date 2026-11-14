@@ -4,9 +4,10 @@ import {
   OrderData,
   OrderTicket,
 } from '../../services/dashboard-service/dashboard-service';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 
 @Component({
-  imports: [],
+  imports: [CurrencyPipe, DatePipe],
   selector: 'app-orders',
   styleUrl: './orders.css',
   templateUrl: './orders.html',

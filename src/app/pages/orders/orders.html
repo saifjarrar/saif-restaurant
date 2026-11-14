@@ -4,7 +4,9 @@
       <h1>Orders</h1>
       <p class="sub">Everything the kitchen is working on, and what has gone out tonight.</p>
     </div>
-    <span class="today"><b>{{ ordertickets().length }}</b> orders today</span>
+    <span class="today"
+      ><b>{{ ordertickets().length }}</b> orders today</span
+    >
   </header>
 
   <div class="layout">
@@ -18,7 +20,9 @@
 
       <!-- The numbers except "All" are still fixed, they will be calculated in the TypeScript step -->
       <nav class="tabs" aria-label="Order status">
-        <label for="f-all">All <span>{{ ordertickets().length }}</span></label>
+        <label for="f-all"
+          >All <span>{{ ordertickets().length }}</span></label
+        >
         <label for="f-received">Received <span>3</span></label>
         <label for="f-cooking">In the kitchen <span>1</span></label>
         <label for="f-served">Served <span>3</span></label>
@@ -43,13 +47,19 @@
             <!-- All the dishes live inside ONE cell, so the columns stay aligned -->
             <ul class="what">
               @for (dish of order.dishes; track dish.name) {
-                <li><span>{{ dish.quantity }}×</span> {{ dish.name }}</li>
+                <li>
+                  <span>{{ dish.quantity }}×</span> {{ dish.name }}
+                </li>
               }
             </ul>
 
-            <time>{{ order.time }}</time>
-            <span class="total">${{ order.total }}</span>
+            <time [attr.datetime]="order.createdAt">
+              {{ order.createdAt ? (order.createdAt | date: 'shortTime') : '—' }}
+            </time>
 
+            <span class="total">
+              {{ order.total == null ? '—' : (order.total | currency: 'USD') }}
+            </span>
             <span
               class="status"
               [class.received]="order.orderstatus.toLowerCase() == 'received'"
