@@ -1,4 +1,12 @@
-﻿[ApiController]
+﻿using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Net.Mail;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace SaifRestaurantApi.Controllers;
+
+[ApiController]
 [Route("api/contact")]
 public class ContactController(
     IConfiguration configuration,
