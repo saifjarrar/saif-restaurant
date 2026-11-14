@@ -178,8 +178,8 @@ public class DashboardController : ControllerBase
                 Quantity = dish.Quantity,
                 UnitPrice = unitPrice,
             });
-
-            total += unitPrice * dish.Quantity;
+            
+    total += unitPrice * dish.Quantity;
         }
 
         var createdAt = DateTimeOffset.UtcNow;
@@ -207,6 +207,17 @@ public class DashboardController : ControllerBase
         await transaction.CommitAsync();
 
         return Ok(order);
+    }
+    private static DateTime ParseTime(string time)
+    {
+        return DateTime.TryParseExact(
+            time,
+            "h:mm tt",
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out var parsed)
+            ? parsed
+            : DateTime.MaxValue;
     }
 
     [HttpPost("reservations")]
