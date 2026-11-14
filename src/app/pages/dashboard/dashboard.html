@@ -74,7 +74,7 @@
               Return to Received
             </button>
           } @else if (status === 'received' || status === 'in the kitchen') {
-            <p class="t-time">Ready in about {{ order.readytime }}</p>
+            <p class="t-time">{{ readyTimeLabel(order) }}</p>
             <button class="t-btn" type="button" [disabled]="saving" (click)="markAs(order.id)">
               {{ status === 'received' ? 'Start Cooking' : 'Mark as Served' }}
             </button>

@@ -9,7 +9,8 @@ import {
 } from '../../services/dashboard-service/dashboard-service';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { finalize, Observable } from 'rxjs';
+import { finalize, map, Observable, timer } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-dashboard',
@@ -81,5 +82,18 @@ export class Dashboard implements OnInit {
   onNewOrder() {
     this.router.navigateByUrl('/layout/neworder');
     this.dashboardService.getDashboard();
+  }
+  private readonly now = toSignal(timer(0, 1000).pipe(map(() => Date.now())), {
+    initialValue: Date.now(),
+  });
+
+  readyTimeLabel(order: OrderTicket): string {
+    if (!order.readyAt) {
+      return order.readytime ? `Estimated prep: ${order.readytime}` : '—';
+    }
+
+    const minutes = Math.ceil((Date.parse(order.readyAt) - this.now()) / 60_000);
+
+    return minutes > 0 ? `Ready in about ${minutes} min` : 'Estimated ready time reached';
   }
 }
