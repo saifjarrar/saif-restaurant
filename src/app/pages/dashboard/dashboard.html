@@ -12,19 +12,20 @@
       <div class="stat">
         <span class="label">{{ info.title }}</span>
         <b>{{ info.value }}</b>
-        <small [class.up]="info.color == 'up'">{{ info.describe }}</small>
+        <small [class.up]="info.color === 'up'">{{ info.describe }}</small>
       </div>
     }
   </section>
 
   <section class="block">
-    <<!-- In dashboard.html: replace the block-head of the kitchen board with this -->
     <div class="block-head">
       <h2>On the kitchen board</h2>
       <div class="head-actions">
         <span class="count">{{ ordertickets().length }} orders</span>
         <button class="new-btn" type="button" (click)="onNewOrder()">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
           New order
         </button>
       </div>
@@ -56,8 +57,9 @@
           </div>
 
           <p class="t-table">{{ order.table }}</p>
+
           <ul>
-            @for (dish of order.dishes; track dish.name) {
+            @for (dish of order.dishes; track $index) {
               <li>
                 <span>{{ dish.quantity }}×</span> {{ dish.name }}
               </li>
@@ -88,51 +90,6 @@
         </article>
       }
     </div>
-    div class="tickets">
-    @for (order of ordertickets(); track order.id) {
-      <article
-        class="ticket"
-        [class.received]="order.orderstatus.toLowerCase() == 'received'"
-        [class.cooking]="order.orderstatus.toLowerCase() == 'in the kitchen'"
-        [class.served]="order.orderstatus.toLowerCase() == 'served'"
-      >
-        <div class="t-top">
-          <b>{{ order.ordernum }}</b>
-
-          @if (order.orderstatus.toLowerCase() == 'received') {
-            <span class="status received">{{ order.orderstatus }}</span>
-          } @else if (order.orderstatus.toLowerCase() == 'in the kitchen') {
-            <span class="status cooking">{{ order.orderstatus }}</span>
-          } @else if (order.orderstatus.toLowerCase() == 'served') {
-            <span class="status served">{{ order.orderstatus }}</span>
-          }
-        </div>
-
-        <p class="t-table">{{ order.table }}</p>
-
-        <ul>
-          @for (dish of order.dishes; track dish.name) {
-            <li>
-              <span>{{ dish.quantity }}×</span> {{ dish.name }}
-            </li>
-          }
-        </ul>
-
-        @if (order.orderstatus.toLowerCase() != 'served') {
-          <p class="t-time">Ready in about {{ order.readytime }}</p>
-        } @else {
-          <p class="t-time">Served and enjoyed</p>
-        }
-
-        @if (order.orderstatus.toLowerCase() == 'in the kitchen') {
-          <button class="t-btn" type="button" (click)="markAs(order.id)">Mark as Served</button>
-        } @else if (order.orderstatus.toLowerCase() == 'received') {
-          <button class="t-btn" type="button" (click)="markAs(order.id)">Start Cooking</button>
-        } @else if (order.orderstatus.toLowerCase() == 'served') {
-          <button class="t-btn" type="button" (click)="markAs(order.id)">Return to Received</button>
-        }
-      </article>
-    }
   </section>
 
   <div class="two">
