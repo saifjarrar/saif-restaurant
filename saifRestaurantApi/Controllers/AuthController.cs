@@ -90,16 +90,13 @@ namespace SaifRestaurantApi.Controllers
 
             }
 
-            if (!await _roleManager.RoleExistsAsync(SD.Role_Admin))
-
+            // make sure both roles exist (before, it checked Admin but created Customer)
+            foreach (var roleName in new[] { SD.Role_Admin, SD.Role_Customer })
             {
-
-                await _roleManager.CreateAsync(
-
-                    new IdentityRole(SD.Role_Customer)
-
-                );
-
+                if (!await _roleManager.RoleExistsAsync(roleName))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(roleName));
+                }
             }
 
 
@@ -245,7 +242,10 @@ namespace SaifRestaurantApi.Controllers
 
                     .WriteToken(token),
 
-                Role = roles.FirstOrDefault() ?? "",
+                // if the user has the Admin role, always return Admin
+                Role = roles.Contains(SD.Role_Admin)
+                    ? SD.Role_Admin
+                    : roles.FirstOrDefault() ?? "",
 
                 ExpiersAt = expiresAt
             };
