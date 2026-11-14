@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SaifRestaurantApi.Dto;
 using SaifRestaurantApi.Models;
@@ -49,25 +51,26 @@ namespace SaifRestaurantApi.Controllers
 
         {
 
-            var existinguser = await _userManager.FindByEmailAsync(model.Email);
-
-            if (existinguser != null)
-
+            if (await _userManager.FindByEmailAsync(model.Email) != null ||
+                await _userManager.FindByNameAsync(model.Email) != null)
             {
-
-                _response.Status = HttpStatusCode.BadRequest;
-
-                _response.IsSuccess = false;
-
-                _response.Errors.Add("user is already exist");
-
-                return BadRequest(_response);
-
+                return AccountAlreadyExists();
             }
 
             var user = new AppUser { UserName = model.Email, Email = model.Email };
 
-            var result = await _userManager.CreateAsync(user, model.password);
+            IdentityResult result;
+            try
+            {
+                result = await _userManager.CreateAsync(user, model.password);
+            }
+            catch (DbUpdateException ex) when (
+                ex.InnerException is SqlException sqlException &&
+                sqlException.Number == 2601 &&
+                sqlException.Message.Contains("'UserNameIndex'", StringComparison.Ordinal))
+            {
+                return AccountAlreadyExists();
+            }
 
             if (!result.Succeeded)
 
@@ -122,6 +125,14 @@ namespace SaifRestaurantApi.Controllers
 
             return Ok(_response);
 
+        }
+
+        private IActionResult AccountAlreadyExists()
+        {
+            _response.Status = HttpStatusCode.BadRequest;
+            _response.IsSuccess = false;
+            _response.Errors.Add("An account with this email already exists. Please log in.");
+            return BadRequest(_response);
         }
 
         [HttpPost("login")]
