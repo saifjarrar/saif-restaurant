@@ -6,7 +6,11 @@ namespace SaifRestaurantApi.Data
 {
     public class AppDBContext : IdentityDbContext<AppUser>
     {
-        public AppDBContext(DbContextOptions<AppDBContext> options) : base(options)
+        public AppDBContext(DbContextOptions<AppDBContext> options) : this((DbContextOptions)options)
+        {
+        }
+
+        protected AppDBContext(DbContextOptions options) : base(options)
         {
         }
         public DbSet<OrderTicket> OrderTickets { get; set; }

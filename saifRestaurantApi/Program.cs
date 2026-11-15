@@ -17,11 +17,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-builder.Services.AddDbContext<AppDBContext>(options =>
+var postgresConnection = builder.Configuration.GetConnectionString("Postgres");
+if (string.IsNullOrWhiteSpace(postgresConnection))
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
-builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppDBContext>().
+    builder.Services.AddDbContext<AppDBContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
+else
+{
+    builder.Services.AddDbContext<AppDBContext, PostgresAppDBContext>(options =>
+        options.UseNpgsql(postgresConnection));
+}
+builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppDBContext>();
     var jwtkey = builder.Configuration["Jwt:Key"]
 ?? throw new InvalidOperationException("Key Is Missing");
 builder.Services.AddAuthentication(options => {
@@ -111,4 +118,3 @@ internal sealed class BearerSecuritySchemeTransformer(Microsoft.AspNetCore.Authe
         };
     }
 }
- 
