@@ -64,7 +64,7 @@
 .field input:hover, .field textarea:hover { border-color: #8da192; }
 .field input:focus, .field textarea:focus { background: #fff; border-color: var(--brand); box-shadow: 0 0 0 4px rgba(18, 80, 63, .15); }
 .field label {
-  position: absolute; left: 16px; top: 19px;
+  position: absolute; inset-inline-start: 16px; top: 19px;
   font-size: 15px; color: #3f5148;
   pointer-events: none;
   transform-origin: left top;
@@ -136,3 +136,4 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+:host-context([dir="rtl"]) .field label { transform-origin: right top; }

@@ -1,32 +1,32 @@
 <main class="page">
   <header class="head">
     <div>
-      <h1>Today at Saif Restaurant</h1>
+      <h1>{{ 'Today at Saif Restaurant' | translate }}</h1>
       <p class="sub">{{ date | date: 'fullDate' }}</p>
     </div>
-    <span class="open"><i></i>Kitchen open until 11:00 PM</span>
+    <span class="open"><i></i>{{ 'Kitchen open until 11:00 PM' | translate }}</span>
   </header>
 
-  <section class="strip" aria-label="Summary">
+  <section class="strip" [attr.aria-label]="'Summary' | translate">
     @for (info of restaurantinfo(); track info.title) {
       <div class="stat">
-        <span class="label">{{ info.title }}</span>
+        <span class="label">{{ (info.title) | translate }}</span>
         <b>{{ info.value }}</b>
-        <small [class.up]="info.color === 'up'">{{ info.describe }}</small>
+        <small [class.up]="info.color === 'up'">{{ (info.describe) | translate }}</small>
       </div>
     }
   </section>
 
   <section class="block">
     <div class="block-head">
-      <h2>On the kitchen board</h2>
+      <h2>{{ 'On the kitchen board' | translate }}</h2>
       <div class="head-actions">
-        <span class="count">{{ ordertickets().length }} orders</span>
+        <span class="count">{{ ordertickets().length }} {{ 'orders' | translate }}</span>
         <button class="new-btn" type="button" (click)="onNewOrder()">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 5v14M5 12h14" />
           </svg>
-          New order
+          {{ 'New order' | translate }}
         </button>
       </div>
     </div>
@@ -52,31 +52,31 @@
               [class.served]="status === 'served'"
               [class.cancelled]="status === 'cancelled'"
             >
-              {{ order.orderstatus }}
+              {{ (order.orderstatus) | translate }}
             </span>
           </div>
 
-          <p class="t-table">{{ order.table }}</p>
+          <p class="t-table">{{ (order.table) | translate }}</p>
 
           <ul>
             @for (dish of order.dishes; track $index) {
               <li>
-                <span>{{ dish.quantity }}×</span> {{ dish.name }}
+                <span>{{ dish.quantity }}×</span> {{ (dish.name) | translate }}
               </li>
             }
           </ul>
 
           @if (status === 'cancelled') {
-            <p class="t-time">Order cancelled</p>
+            <p class="t-time">{{ 'Order cancelled' | translate }}</p>
           } @else if (status === 'served') {
-            <p class="t-time">Served and enjoyed</p>
+            <p class="t-time">{{ 'Served and enjoyed' | translate }}</p>
             <button class="t-btn" type="button" [disabled]="saving" (click)="markAs(order.id)">
-              Return to Received
+              {{ 'Return to Received' | translate }}
             </button>
           } @else if (status === 'received' || status === 'in the kitchen') {
             <p class="t-time">{{ readyTimeLabel(order) }}</p>
             <button class="t-btn" type="button" [disabled]="saving" (click)="markAs(order.id)">
-              {{ status === 'received' ? 'Start Cooking' : 'Mark as Served' }}
+              {{ (status === 'received' ? 'Start Cooking' : 'Mark as Served') | translate }}
             </button>
             <button
               class="t-btn cancel-btn"
@@ -84,7 +84,7 @@
               [disabled]="saving"
               (click)="cancelOrder(order.id)"
             >
-              Cancel
+              {{ 'Cancel' | translate }}
             </button>
           }
         </article>
@@ -95,8 +95,8 @@
   <div class="two">
     <section class="block">
       <div class="block-head">
-        <h2>Tonight's reservations</h2>
-        <span class="count">{{ tonightreservations().length }} of 24</span>
+        <h2>{{ 'Tonight\'s reservations' | translate }}</h2>
+        <span class="count">{{ tonightreservations().length }} {{ 'of 24' | translate }}</span>
       </div>
 
       <ol class="slots">
@@ -105,7 +105,7 @@
             <time>{{ reservation.time }}</time>
             <div>
               <b>{{ reservation.name }}</b>
-              <small>{{ reservation.guests }} guests · {{ reservation.table }}</small>
+              <small>{{ reservation.guests }} {{ 'guests ·' | translate }} {{ (reservation.table) | translate }}</small>
             </div>
           </li>
         }
@@ -114,15 +114,15 @@
 
     <section class="block">
       <div class="block-head">
-        <h2>Most ordered today</h2>
-        <span class="count">Dishes</span>
+        <h2>{{ 'Most ordered today' | translate }}</h2>
+        <span class="count">{{ 'Dishes' | translate }}</span>
       </div>
 
       <ul class="dishes">
         @for (dish of mostordered(); track dish.name) {
           <li>
             <div class="d-row">
-              <b>{{ dish.name }}</b>
+              <b>{{ (dish.name) | translate }}</b>
               <span>{{ dish.quantity }}</span>
             </div>
             <div class="bar">

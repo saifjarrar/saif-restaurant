@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import {
   DashboardService,
@@ -7,7 +8,7 @@ import {
 import { CurrencyPipe, DatePipe } from '@angular/common';
 
 @Component({
-  imports: [CurrencyPipe, DatePipe],
+  imports: [TranslatePipe, CurrencyPipe, DatePipe],
   selector: 'app-orders',
   styleUrl: './orders.css',
   templateUrl: './orders.html',

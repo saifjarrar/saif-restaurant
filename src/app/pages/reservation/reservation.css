@@ -237,7 +237,7 @@
 
 .field label {
   position: absolute;
-  left: 16px;
+  inset-inline-start: 16px;
   top: 19px;
   font-size: 15px;
   color: var(--muted);
@@ -737,3 +737,5 @@
     transition: none !important;
   }
 }
+
+:host-context([dir="rtl"]) .field label { transform-origin: right top; }

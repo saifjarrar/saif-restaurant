@@ -1,3 +1,5 @@
+import { LanguageService } from '../../i18n/language';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { API_URL } from '../../config/api-url';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
@@ -13,12 +15,13 @@ interface SignupResponse {
 }
 
 @Component({
-  imports: [ReactiveFormsModule],
+  imports: [TranslatePipe, ReactiveFormsModule],
   selector: 'app-signup',
   styleUrl: './signup.css',
   templateUrl: './signup.html',
 })
 export class Signup {
+  private readonly language = inject(LanguageService);
   router = inject(Router);
   http = inject(HttpClient);
 
@@ -67,7 +70,7 @@ export class Signup {
       .subscribe({
         next: (response) => {
           if (response.isSuccess && response.result) {
-            alert('Your account has been created successfully.');
+            alert(this.language.translate('Your account has been created successfully.'));
             this.router.navigateByUrl('/login');
           } else {
             this.errorMessage.set(this.getReadableError(response.errors, response.message));

@@ -1,5 +1,5 @@
-<input class="switch" type="radio" name="tab" id="tab-login" checked aria-label="Log in" />
-<input class="switch" type="radio" name="tab" id="tab-signup" aria-label="Sign up" />
+<input class="switch" type="radio" name="tab" id="tab-login" checked [attr.aria-label]="'Log in' | translate" />
+<input class="switch" type="radio" name="tab" id="tab-signup" [attr.aria-label]="'Sign up' | translate" />
 
 <main class="card">
   <!-- Left: brand + restaurant preview -->
@@ -13,12 +13,12 @@
           <path d="M8.5 12l2.5 2.5 4.5-5" />
         </svg>
       </span>
-      <span class="brand-name">Saif Restaurant</span>
+      <span class="brand-name">{{ 'Saif Restaurant' | translate }}</span>
     </div>
 
     <div class="pitch">
-      <h2>Good food, served with care.</h2>
-      <p>Book a table, order ahead and follow your meal from the kitchen to your seat.</p>
+      <h2>{{ 'Good food, served with care.' | translate }}</h2>
+      <p>{{ 'Book a table, order ahead and follow your meal from the kitchen to your seat.' | translate }}</p>
     </div>
 
     <div class="stage">
@@ -28,7 +28,7 @@
             <path d="M5 12.5l4.5 4.5L19 7.5" />
           </svg>
         </span>
-        <span>Table for 4 confirmed<small>Tonight, 8:30 PM</small></span>
+        <span>{{ 'Table for 4 confirmed' | translate }}<small>{{ 'Tonight, 8:30 PM' | translate }}</small></span>
       </div>
 
       <div class="mock">
@@ -41,16 +41,16 @@
         </div>
 
         <div class="mock-top">
-          <b>Order #2481</b>
-          <span class="pill">Ready in 12 min</span>
+          <b>{{ 'Order #2481' | translate }}</b>
+          <span class="pill">{{ 'Ready in 12 min' | translate }}</span>
         </div>
-        <div class="mock-num">Grilled sea bass</div>
-        <div class="mock-sub">Lemon butter, charred greens · Table 7</div>
+        <div class="mock-num">{{ 'Grilled sea bass' | translate }}</div>
+        <div class="mock-sub">{{ 'Lemon butter, charred greens · Table 7' | translate }}</div>
 
         <ol class="steps">
-          <li class="done"><span></span>Received</li>
-          <li class="now"><span></span>In the kitchen</li>
-          <li><span></span>Served</li>
+          <li class="done"><span></span>{{ 'Received' | translate }}</li>
+          <li class="now"><span></span>{{ 'In the kitchen' | translate }}</li>
+          <li><span></span>{{ 'Served' | translate }}</li>
         </ol>
       </div>
     </div>
@@ -65,13 +65,13 @@
           <path d="M8.5 12l2.5 2.5 4.5-5" />
         </svg>
       </span>
-      <span class="brand-name">Saif Restaurant</span>
+      <span class="brand-name">{{ 'Saif Restaurant' | translate }}</span>
     </div>
 
     <!-- LOGIN -->
     <form class="form form-login" [formGroup]="userform" (ngSubmit)="onLogin()">
-      <h1>Welcome back</h1>
-      <p class="sub">Log in to manage your reservations and orders.</p>
+      <h1>{{ 'Welcome back' | translate }}</h1>
+      <p class="sub">{{ 'Log in to manage your reservations and orders.' | translate }}</p>
 
       <div class="field">
         <input
@@ -81,7 +81,7 @@
           placeholder=" "
           autocomplete="email"
         />
-        <label for="login-email">Email address</label>
+        <label for="login-email">{{ 'Email address' | translate }}</label>
         <svg class="ic" viewBox="0 0 24 24">
           <rect x="3" y="5" width="18" height="14" rx="3" />
           <path d="m4 8 8 5 8-5" />
@@ -90,9 +90,9 @@
         @if (email?.touched && email?.invalid) {
           <div class="error">
             @if (email?.errors?.['required']) {
-              <span>Email is required</span>
+              <span>{{ 'Email is required' | translate }}</span>
             } @else if (email?.errors?.['email']) {
-              <span>Enter a valid email address</span>
+              <span>{{ 'Enter a valid email address' | translate }}</span>
             }
           </div>
         }
@@ -106,7 +106,7 @@
           placeholder=" "
           autocomplete="current-password"
         />
-        <label for="login-pass">Password</label>
+        <label for="login-pass">{{ 'Password' | translate }}</label>
         <svg class="ic" viewBox="0 0 24 24">
           <rect x="5" y="11" width="14" height="9" rx="3" />
           <path d="M8 11V8a4 4 0 0 1 8 0v3" />
@@ -115,9 +115,9 @@
         @if (password?.touched && password?.invalid) {
           <div class="error">
             @if (password?.errors?.['required']) {
-              <span>Password is required</span>
+              <span>{{ 'Password is required' | translate }}</span>
             } @else if (password?.errors?.['minlength']) {
-              <span>Password must be at least 6 characters</span>
+              <span>{{ 'Password must be at least 6 characters' | translate }}</span>
             }
           </div>
         }
@@ -126,15 +126,15 @@
       <!-- Backend error message -->
       @if (errorMessage()) {
         <div class="error server-error" role="alert">
-          <span>{{ errorMessage() }}</span>
+          <span>{{ (errorMessage()) | translate }}</span>
         </div>
       }
 
-      <button class="btn" type="submit" [disabled]="submitting()">{{ submitting() ? 'Logging in…' : 'Log in' }}</button>
+      <button class="btn" type="submit" [disabled]="submitting()">{{ (submitting() ? 'Logging in…' : 'Log in') | translate }}</button>
 
       <p class="switch-text">
-        Don't have an account?
-        <label for="tab-signup" (click)="onSignup()">Sign up</label>
+        {{ 'Don\'t have an account?' | translate }}
+        <label for="tab-signup" (click)="onSignup()">{{ 'Sign up' | translate }}</label>
       </p>
     </form>
   </section>

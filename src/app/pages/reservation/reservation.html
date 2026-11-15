@@ -1,15 +1,15 @@
 <main class="page">
   <header class="head">
-    <h1>Reserve a table</h1>
-    <p class="sub">Pick a day, a time and how many of you are coming. We'll hold your table.</p>
+    <h1>{{ 'Reserve a table' | translate }}</h1>
+    <p class="sub">{{ 'Pick a day, a time and how many of you are coming. We\'ll hold your table.' | translate }}</p>
   </header>
 
   <div class="layout">
     <!-- Booking form -->
-    <section class="booking" aria-label="Book a table" [formGroup]="form">
+    <section class="booking" [attr.aria-label]="'Book a table' | translate" [formGroup]="form">
       <!-- Day -->
       <div class="group">
-        <h2>Day</h2>
+        <h2>{{ 'Day' | translate }}</h2>
 
         <div class="chips days">
           @for (day of days; track day.value) {
@@ -22,7 +22,7 @@
             />
 
             <label [attr.for]="'day-' + day.value">
-              <small>{{ day.weekday }}</small>
+              <small>{{ (day.weekday) | translate }}</small>
               <b>{{ day.number }}</b>
             </label>
           }
@@ -31,7 +31,7 @@
 
       <!-- Guests -->
       <div class="group">
-        <h2>Guests</h2>
+        <h2>{{ 'Guests' | translate }}</h2>
 
         <div class="chips guests">
           @for (n of guestOptions; track n) {
@@ -52,7 +52,7 @@
 
       <!-- Time -->
       <div class="group">
-        <h2>Time</h2>
+        <h2>{{ 'Time' | translate }}</h2>
 
         <div class="chips times">
           @for (slot of times; track slot.value) {
@@ -69,7 +69,7 @@
               {{ slot.value }}
 
               @if (slot.full) {
-                <small>Full</small>
+                <small>{{ 'Full' | translate }}</small>
               }
             </label>
           }
@@ -78,7 +78,7 @@
 
       <!-- Seating -->
       <div class="group">
-        <h2>Seating</h2>
+        <h2>{{ 'Seating' | translate }}</h2>
 
         <div class="chips area">
           @for (option of seatingOptions; track option) {
@@ -91,7 +91,7 @@
             />
 
             <label [attr.for]="'seat-' + option">
-              {{ option }}
+              {{ (option) | translate }}
             </label>
           }
         </div>
@@ -108,10 +108,10 @@
             autocomplete="name"
           />
 
-          <label for="res-name">Full name</label>
+          <label for="res-name">{{ 'Full name' | translate }}</label>
 
           @if (form.controls.name.touched && form.controls.name.invalid) {
-            <p class="error-text">Please enter your name</p>
+            <p class="error-text">{{ 'Please enter your name' | translate }}</p>
           }
         </div>
 
@@ -124,10 +124,10 @@
             autocomplete="tel"
           />
 
-          <label for="res-phone">Phone number</label>
+          <label for="res-phone">{{ 'Phone number' | translate }}</label>
 
           @if (form.controls.phone.touched && form.controls.phone.invalid) {
-            <p class="error-text">Enter a valid phone number</p>
+            <p class="error-text">{{ 'Enter a valid phone number' | translate }}</p>
           }
         </div>
 
@@ -135,25 +135,25 @@
         <div class="field wide">
           <textarea id="res-notes" rows="3" placeholder=" "></textarea>
 
-          <label for="res-notes"> Notes (allergies, birthday, high chair) </label>
+          <label for="res-notes"> {{ 'Notes (allergies, birthday, high chair)' | translate }} </label>
         </div>
       </div>
 
       <!-- Server Error -->
       @if (errorMessage()) {
         <p class="error-text server-error">
-          {{ errorMessage() }}
+          {{ (errorMessage()) | translate }}
         </p>
       }
 
       <!-- Confirm Button -->
       @if (auth.isAdmin()) {
         <button class="btn" type="button" [disabled]="isSending()" (click)="confirm()">
-          {{ isSending() ? 'Sending...' : 'Confirm reservation' }}
+          {{ (isSending() ? 'Sending...' : 'Confirm reservation') | translate }}
         </button>
       } @else {
         <button class="btn" type="button" [disabled]="isSending()" (click)="confirmcustomer()">
-          {{ isSending() ? 'Sending...' : 'Confirm reservation' }}
+          {{ (isSending() ? 'Sending...' : 'Confirm reservation') | translate }}
         </button>
       }
     </section>
@@ -162,68 +162,68 @@
     <aside class="side">
       <!-- Opening Hours -->
       <section class="card dark">
-        <h2>Opening hours</h2>
+        <h2>{{ 'Opening hours' | translate }}</h2>
 
         <ul class="hours">
           <li>
-            <span>Sunday to Thursday</span>
-            <b>12:00 PM to 11:00 PM</b>
+            <span>{{ 'Sunday to Thursday' | translate }}</span>
+            <b>{{ '12:00 PM to 11:00 PM' | translate }}</b>
           </li>
 
           <li>
-            <span>Friday and Saturday</span>
-            <b>12:00 PM to 12:00 AM</b>
+            <span>{{ 'Friday and Saturday' | translate }}</span>
+            <b>{{ '12:00 PM to 12:00 AM' | translate }}</b>
           </li>
         </ul>
 
-        <p class="note">Kitchen closes 30 minutes before closing time.</p>
+        <p class="note">{{ 'Kitchen closes 30 minutes before closing time.' | translate }}</p>
       </section>
 
       <!-- Upcoming Reservations -->
       <section class="card">
-        <h2>Your upcoming reservations</h2>
+        <h2>{{ 'Your upcoming reservations' | translate }}</h2>
 
         <ul class="upcoming">
           <li>
             <div class="date">
-              <small>Fri</small>
+              <small>{{ 'Fri' | translate }}</small>
               <b>6</b>
             </div>
 
             <div class="info">
-              <b>8:00 PM · 4 guests</b>
-              <small>Terrace</small>
+              <b>{{ '8:00 PM · 4 guests' | translate }}</b>
+              <small>{{ 'Terrace' | translate }}</small>
             </div>
 
-            <span class="status ok">Confirmed</span>
+            <span class="status ok">{{ 'Confirmed' | translate }}</span>
           </li>
 
           <li>
             <div class="date">
-              <small>Sat</small>
+              <small>{{ 'Sat' | translate }}</small>
               <b>14</b>
             </div>
 
             <div class="info">
-              <b>7:00 PM · 2 guests</b>
-              <small>Indoor</small>
+              <b>{{ '7:00 PM · 2 guests' | translate }}</b>
+              <small>{{ 'Indoor' | translate }}</small>
             </div>
 
-            <span class="status wait">Pending</span>
+            <span class="status wait">{{ 'Pending' | translate }}</span>
           </li>
         </ul>
       </section>
 
       <!-- Good to Know -->
       <section class="card">
-        <h2>Good to know</h2>
+        <h2>{{ 'Good to know' | translate }}</h2>
 
         <ul class="tips">
-          <li>We hold your table for 15 minutes after the booking time.</li>
+          <li>{{ 'We hold your table for 15 minutes after the booking time.' | translate }}</li>
 
-          <li>For groups of 9 or more, please call us.</li>
+          <li>{{ 'For groups of 9 or more, please call us.' | translate }}</li>
 
-          <li>Tell us about allergies in the notes, and the kitchen will prepare for them.</li>
+          <li>{{ 'Tell us about allergies in the notes, and the kitchen will prepare for them.' | translate }}</li>
         </ul>
       </section>
     </aside>

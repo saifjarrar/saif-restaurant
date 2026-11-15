@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import {
   DashboardService,
@@ -17,7 +18,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   standalone: true,
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
-  imports: [DatePipe],
+  imports: [TranslatePipe, DatePipe],
 })
 export class Dashboard implements OnInit {
   date = new Date();

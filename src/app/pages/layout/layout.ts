@@ -1,9 +1,10 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterOutlet, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth-service/auth-service';
 
 @Component({
-  imports: [RouterLink, RouterOutlet, RouterLinkActive],
+  imports: [TranslatePipe, RouterLink, RouterOutlet, RouterLinkActive],
   selector: 'app-layout',
   styleUrl: './layout.css',
   templateUrl: './layout.html',

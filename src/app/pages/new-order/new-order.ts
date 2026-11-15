@@ -1,10 +1,11 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { Component, inject, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DashboardService, OrderTicket } from '../../services/dashboard-service/dashboard-service';
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-new-order',
-  imports: [ReactiveFormsModule],
+  imports: [TranslatePipe, ReactiveFormsModule],
   templateUrl: './new-order.html',
   styleUrl: './new-order.css',
 })

@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { API_URL } from '../../config/api-url';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
@@ -7,7 +8,7 @@ import { finalize, timeout } from 'rxjs';
 import { AuthService, LoginResponse } from '../../services/auth-service/auth-service';
 
 @Component({
-  imports: [ReactiveFormsModule],
+  imports: [TranslatePipe, ReactiveFormsModule],
   selector: 'app-login',
   styleUrl: './login.css',
   templateUrl: './login.html',

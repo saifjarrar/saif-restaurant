@@ -1,9 +1,11 @@
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { API_URL } from '../../config/api-url';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 
 @Component({
+  imports: [TranslatePipe],
   selector: 'app-contact',
   styleUrl: './contact.css',
   templateUrl: './contact.html',

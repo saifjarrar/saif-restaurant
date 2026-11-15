@@ -1,3 +1,5 @@
+import { LanguageService } from '../../i18n/language';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,11 +8,12 @@ import { AuthService } from '../../services/auth-service/auth-service';
 
 @Component({
   selector: 'app-reservation',
-  imports: [ReactiveFormsModule],
+  imports: [TranslatePipe, ReactiveFormsModule],
   templateUrl: './reservation.html',
   styleUrl: './reservation.css',
 })
 export class Reservation {
+  private readonly language = inject(LanguageService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private dashboardService = inject(DashboardService);
@@ -109,7 +112,7 @@ export class Reservation {
     this.dashboardService.createReservation(request).subscribe({
       next: () => {
         this.isSending.set(false);
-        alert('Reservation created successfully!');
+        alert(this.language.translate('Reservation created successfully!'));
       },
 
       error: (err) => {
