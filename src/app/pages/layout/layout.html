@@ -1,13 +1,25 @@
 <header class="navbar" [class.menu-open]="menuOpen()">
-  <a class="brand" routerLink="/layout/dashboard" aria-label="Saif Restaurant home">
-    <span class="mark">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" />
-        <path d="M8.5 12l2.5 2.5 4.5-5" />
-      </svg>
-    </span>
-    <span class="brand-name">Saif Restaurant</span>
-  </a>
+  @if (auth.isAdmin()) {
+    <a class="brand" routerLink="/layout/dashboard" aria-label="Saif Restaurant home">
+      <span class="mark">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" />
+          <path d="M8.5 12l2.5 2.5 4.5-5" />
+        </svg>
+      </span>
+      <span class="brand-name">Saif Restaurant</span>
+    </a>
+  } @else {
+    <a class="brand" routerLink="/layout/menu" aria-label="Saif Restaurant home">
+      <span class="mark">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" />
+          <path d="M8.5 12l2.5 2.5 4.5-5" />
+        </svg>
+      </span>
+      <span class="brand-name">Saif Restaurant</span>
+    </a>
+  }
 
   <!-- NEW: hamburger button, visible only on small screens -->
   <button
