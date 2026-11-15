@@ -1,8 +1,9 @@
 import { API_URL } from '../../config/api-url';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { finalize, timeout } from 'rxjs';
 
 interface SignupResponse {
   isSuccess?: boolean;
@@ -21,7 +22,8 @@ export class Signup {
   router = inject(Router);
   http = inject(HttpClient);
 
-  errorMessage = '';
+  readonly errorMessage = signal('');
+  readonly submitting = signal(false);
 
   signupform: FormGroup = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -46,7 +48,8 @@ export class Signup {
   }
 
   onSignup() {
-    this.errorMessage = '';
+    if (this.submitting()) return;
+    this.errorMessage.set('');
 
     if (this.signupform.invalid) {
       this.signupform.markAllAsTouched();
@@ -60,31 +63,34 @@ export class Signup {
 
     this.http
       .post<SignupResponse>(`${API_URL}/Auth/register`, signupvalue)
+      .pipe(timeout(75_000), finalize(() => this.submitting.set(false)))
       .subscribe({
         next: (response) => {
           if (response.isSuccess && response.result) {
             alert('Your account has been created successfully.');
             this.router.navigateByUrl('/login');
           } else {
-            this.errorMessage = this.getReadableError(response.errors, response.message);
+            this.errorMessage.set(this.getReadableError(response.errors, response.message));
           }
         },
         error: (err) => {
-          if (err.status === 0) {
-            this.errorMessage = 'Unable to connect to the server. Please try again later.';
+          if (err.name === 'TimeoutError') {
+            this.errorMessage.set('The server took too long to respond. Please try again.');
+          } else if (err.status === 0) {
+            this.errorMessage.set('Unable to connect to the server. Please try again later.');
           } else if (err.status === 400 || err.status === 409) {
-            this.errorMessage = this.getReadableError(err.error?.errors, err.error?.message);
+            this.errorMessage.set(this.getReadableError(err.error?.errors, err.error?.message));
           } else if (err.status >= 500) {
-            this.errorMessage = 'Something went wrong on the server. Please try again later.';
+            this.errorMessage.set('Something went wrong on the server. Please try again later.');
           } else {
-            this.errorMessage = this.getReadableError(err.error?.errors, err.error?.message);
+            this.errorMessage.set(this.getReadableError(err.error?.errors, err.error?.message));
           }
         },
       });
   }
 
   getReadableError(errors?: string[], message?: string): string {
-    const allErrors = [...(errors ?? []), message ?? '']
+    const allErrors = [...(Array.isArray(errors) ? errors : []), message ?? '']
       .filter((error) => error && error.trim() && error.trim() !== '-')
       .join(' ')
       .toLowerCase();

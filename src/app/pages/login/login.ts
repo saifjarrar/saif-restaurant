@@ -1,8 +1,9 @@
 import { API_URL } from '../../config/api-url';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { finalize, timeout } from 'rxjs';
 import { AuthService, LoginResponse } from '../../services/auth-service/auth-service';
 
 @Component({
@@ -16,7 +17,8 @@ export class Login {
   router = inject(Router);
   auth = inject(AuthService);
 
-  errorMessage = '';
+  readonly errorMessage = signal('');
+  readonly submitting = signal(false);
 
   userform: FormGroup = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -32,15 +34,18 @@ export class Login {
   }
 
   onLogin() {
-    this.errorMessage = '';
+    if (this.submitting()) return;
+    this.errorMessage.set('');
 
     if (this.userform.invalid) {
       this.userform.markAllAsTouched();
       return;
     }
 
+    this.submitting.set(true);
     this.http
       .post<LoginResponse>(`${API_URL}/Auth/login`, this.userform.value)
+      .pipe(timeout(75_000), finalize(() => this.submitting.set(false)))
       .subscribe({
         next: (response) => {
           if (response.isSuccess && response.result) {
@@ -50,28 +55,30 @@ export class Login {
               response.result.role === 'Admin' ? '/layout/dashboard' : '/layout/menu',
             );
           } else {
-            this.errorMessage = this.getReadableError(response.errors);
+            this.errorMessage.set(this.getReadableError(response.errors));
           }
         },
 
         error: (err) => {
-          if (err.status === 0) {
-            this.errorMessage = 'Unable to connect to the server. Please try again later.';
+          if (err.name === 'TimeoutError') {
+            this.errorMessage.set('The server took too long to respond. Please try again.');
+          } else if (err.status === 0) {
+            this.errorMessage.set('Unable to connect to the server. Please try again later.');
           } else if (err.status === 401) {
-            this.errorMessage = 'Incorrect email or password. Please check your credentials.';
+            this.errorMessage.set('Incorrect email or password. Please check your credentials.');
           } else if (err.status === 400) {
-            this.errorMessage = this.getReadableError(err.error?.errors);
+            this.errorMessage.set(this.getReadableError(err.error?.errors));
           } else if (err.status >= 500) {
-            this.errorMessage = 'Something went wrong on the server. Please try again later.';
+            this.errorMessage.set('Something went wrong on the server. Please try again later.');
           } else {
-            this.errorMessage = 'Login failed. Please try again.';
+            this.errorMessage.set('Login failed. Please try again.');
           }
         },
       });
   }
 
   getReadableError(errors?: string[]): string {
-    const error = errors?.find((item) => item && item.trim() !== '' && item.trim() !== '-');
+    const error = (Array.isArray(errors) ? errors : []).find((item) => item && item.trim() !== '' && item.trim() !== '-');
 
     if (!error) {
       return 'Unable to log in. Please check your credentials and try again.';

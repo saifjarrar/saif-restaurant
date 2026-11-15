@@ -163,13 +163,13 @@
       }
 
       <!-- Backend error message -->
-      @if (errorMessage) {
+      @if (errorMessage()) {
         <div class="error server-error" role="alert">
-          <span>{{ errorMessage }}</span>
+          <span>{{ errorMessage() }}</span>
         </div>
       }
 
-      <button class="btn" type="submit">Create account</button>
+      <button class="btn" type="submit" [disabled]="submitting()">{{ submitting() ? 'Creating account…' : 'Create account' }}</button>
 
       <p class="switch-text">
         Already have an account?
