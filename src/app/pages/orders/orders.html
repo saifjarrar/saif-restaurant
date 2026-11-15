@@ -21,12 +21,20 @@
       <!-- The numbers except "All" are still fixed, they will be calculated in the TypeScript step -->
       <nav class="tabs" aria-label="Order status">
         <label for="f-all"
-          >All <span>{{ ordertickets().length }}</span></label
+          >All <span>{{ orderCounts().all }}</span></label
         >
-        <label for="f-received">Received <span>3</span></label>
-        <label for="f-cooking">In the kitchen <span>1</span></label>
-        <label for="f-served">Served <span>3</span></label>
-        <label for="f-cancelled">Cancelled <span>1</span></label>
+        <label for="f-received"
+          >Received <span>{{ orderCounts().received }}</span></label
+        >
+        <label for="f-cooking"
+          >In the kitchen <span>{{ orderCounts().inKitchen }}</span></label
+        >
+        <label for="f-served"
+          >Served <span>{{ orderCounts().served }}</span></label
+        >
+        <label for="f-cancelled"
+          >Cancelled <span>{{ orderCounts().cancelled }}</span></label
+        >
       </nav>
 
       <ul class="orders">

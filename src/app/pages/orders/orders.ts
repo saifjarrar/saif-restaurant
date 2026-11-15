@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import {
   DashboardService,
   OrderData,
@@ -28,4 +28,33 @@ export class Orders implements OnInit {
   getdashboard() {
     this.dashboardService.getorder();
   }
+  readonly orderCounts = computed(() => {
+    const orders = this.ordertickets();
+    const counts = {
+      all: orders.length,
+      received: 0,
+      inKitchen: 0,
+      served: 0,
+      cancelled: 0,
+    };
+
+    for (const order of orders) {
+      switch (order.orderstatus.trim().toLowerCase()) {
+        case 'received':
+          counts.received++;
+          break;
+        case 'in the kitchen':
+          counts.inKitchen++;
+          break;
+        case 'served':
+          counts.served++;
+          break;
+        case 'cancelled':
+          counts.cancelled++;
+          break;
+      }
+    }
+
+    return counts;
+  });
 }
