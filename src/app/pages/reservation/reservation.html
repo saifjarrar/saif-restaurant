@@ -5,10 +5,12 @@
   </header>
 
   <div class="layout">
-    <!-- Booking form (reactive) -->
+    <!-- Booking form -->
     <section class="booking" aria-label="Book a table" [formGroup]="form">
+      <!-- Day -->
       <div class="group">
         <h2>Day</h2>
+
         <div class="chips days">
           @for (day of days; track day.value) {
             <input
@@ -18,6 +20,7 @@
               [value]="day.value"
               [id]="'day-' + day.value"
             />
+
             <label [attr.for]="'day-' + day.value">
               <small>{{ day.weekday }}</small>
               <b>{{ day.number }}</b>
@@ -26,8 +29,10 @@
         </div>
       </div>
 
+      <!-- Guests -->
       <div class="group">
         <h2>Guests</h2>
+
         <div class="chips guests">
           @for (n of guestOptions; track n) {
             <input
@@ -37,13 +42,18 @@
               [value]="n"
               [id]="'guests-' + n"
             />
-            <label [attr.for]="'guests-' + n">{{ n }}</label>
+
+            <label [attr.for]="'guests-' + n">
+              {{ n }}
+            </label>
           }
         </div>
       </div>
 
+      <!-- Time -->
       <div class="group">
         <h2>Time</h2>
+
         <div class="chips times">
           @for (slot of times; track slot.value) {
             <input
@@ -52,10 +62,12 @@
               formControlName="time"
               [value]="slot.value"
               [id]="'time-' + slot.value"
-              [attr.disabled]="slot.full ? true : null"
+              [disabled]="slot.full"
             />
+
             <label [attr.for]="'time-' + slot.value">
               {{ slot.value }}
+
               @if (slot.full) {
                 <small>Full</small>
               }
@@ -64,8 +76,10 @@
         </div>
       </div>
 
+      <!-- Seating -->
       <div class="group">
         <h2>Seating</h2>
+
         <div class="chips area">
           @for (option of seatingOptions; track option) {
             <input
@@ -75,11 +89,15 @@
               [value]="option"
               [id]="'seat-' + option"
             />
-            <label [attr.for]="'seat-' + option">{{ option }}</label>
+
+            <label [attr.for]="'seat-' + option">
+              {{ option }}
+            </label>
           }
         </div>
       </div>
 
+      <!-- Name and Phone -->
       <div class="group two-fields">
         <div class="field">
           <input
@@ -89,7 +107,9 @@
             placeholder=" "
             autocomplete="name"
           />
+
           <label for="res-name">Full name</label>
+
           @if (form.controls.name.touched && form.controls.name.invalid) {
             <p class="error-text">Please enter your name</p>
           }
@@ -103,22 +123,30 @@
             placeholder=" "
             autocomplete="tel"
           />
+
           <label for="res-phone">Phone number</label>
+
           @if (form.controls.phone.touched && form.controls.phone.invalid) {
             <p class="error-text">Enter a valid phone number</p>
           }
         </div>
 
-        <!-- Not connected yet: the backend does not save notes -->
+        <!-- Notes -->
         <div class="field wide">
           <textarea id="res-notes" rows="3" placeholder=" "></textarea>
-          <label for="res-notes">Notes (allergies, birthday, high chair)</label>
+
+          <label for="res-notes"> Notes (allergies, birthday, high chair) </label>
         </div>
       </div>
 
+      <!-- Server Error -->
       @if (errorMessage()) {
-        <p class="error-text server-error">{{ errorMessage() }}</p>
+        <p class="error-text server-error">
+          {{ errorMessage() }}
+        </p>
       }
+
+      <!-- Confirm Button -->
       @if (auth.isAdmin()) {
         <button class="btn" type="button" [disabled]="isSending()" (click)="confirm()">
           {{ isSending() ? 'Sending...' : 'Confirm reservation' }}
@@ -132,42 +160,69 @@
 
     <!-- Side -->
     <aside class="side">
+      <!-- Opening Hours -->
       <section class="card dark">
         <h2>Opening hours</h2>
+
         <ul class="hours">
-          <li><span>Sunday to Thursday</span><b>12:00 PM to 11:00 PM</b></li>
-          <li><span>Friday and Saturday</span><b>12:00 PM to 12:00 AM</b></li>
+          <li>
+            <span>Sunday to Thursday</span>
+            <b>12:00 PM to 11:00 PM</b>
+          </li>
+
+          <li>
+            <span>Friday and Saturday</span>
+            <b>12:00 PM to 12:00 AM</b>
+          </li>
         </ul>
+
         <p class="note">Kitchen closes 30 minutes before closing time.</p>
       </section>
 
+      <!-- Upcoming Reservations -->
       <section class="card">
         <h2>Your upcoming reservations</h2>
+
         <ul class="upcoming">
           <li>
-            <div class="date"><small>Fri</small><b>6</b></div>
+            <div class="date">
+              <small>Fri</small>
+              <b>6</b>
+            </div>
+
             <div class="info">
               <b>8:00 PM · 4 guests</b>
               <small>Terrace</small>
             </div>
+
             <span class="status ok">Confirmed</span>
           </li>
+
           <li>
-            <div class="date"><small>Sat</small><b>14</b></div>
+            <div class="date">
+              <small>Sat</small>
+              <b>14</b>
+            </div>
+
             <div class="info">
               <b>7:00 PM · 2 guests</b>
               <small>Indoor</small>
             </div>
+
             <span class="status wait">Pending</span>
           </li>
         </ul>
       </section>
 
+      <!-- Good to Know -->
       <section class="card">
         <h2>Good to know</h2>
+
         <ul class="tips">
           <li>We hold your table for 15 minutes after the booking time.</li>
+
           <li>For groups of 9 or more, please call us.</li>
+
           <li>Tell us about allergies in the notes, and the kitchen will prepare for them.</li>
         </ul>
       </section>
