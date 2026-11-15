@@ -58,15 +58,15 @@ builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
 }); ;
-builder.Services.AddCors(options => {
-    options.AddPolicy("AllowAngular", policy =>
+var frontendOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:4200"];
 
-           policy.WithOrigins("http://localhost:4200")
-
-                 .AllowAnyHeader()
-
-                 .AllowAnyMethod());
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular", policy => policy
+        .WithOrigins(frontendOrigins)
+        .AllowAnyHeader()
+        .AllowAnyMethod());
 });
 
 
