@@ -15,6 +15,13 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 export class Orders implements OnInit {
   dashboardService = inject(DashboardService);
   ordertickets = signal<OrderTicket[]>([]);
+  readonly selectedOrderId = signal<number | null>(null);
+
+  readonly selectedOrder = computed(() => {
+    const orders = this.ordertickets();
+
+    return orders.find((order) => order.id === this.selectedOrderId()) ?? orders[0] ?? null;
+  });
   ngOnInit(): void {
     this.dashboardService.getorder().subscribe({
       next: (data: OrderData) => {
