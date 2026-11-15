@@ -46,7 +46,15 @@
             [class.cooking]="order.orderstatus.toLowerCase() == 'in the kitchen'"
             [class.served]="order.orderstatus.toLowerCase() == 'served'"
             [class.cancelled]="order.orderstatus.toLowerCase() == 'cancelled'"
+            [class.selected]="selectedOrder()?.id === order.id"
           >
+            <button
+              class="order-select"
+              type="button"
+              [attr.aria-label]="'Show details for order ' + order.ordernum"
+              [attr.aria-pressed]="selectedOrder()?.id === order.id"
+              (click)="selectedOrderId.set(order.id)"
+            ></button>
             <div class="who">
               <b>{{ order.ordernum }}</b>
               <small>{{ order.table }}</small>
@@ -82,42 +90,82 @@
     </section>
 
     <!-- Receipt for the selected order (still fixed, it becomes dynamic in the TypeScript step) -->
-    <aside class="receipt-wrap" aria-label="Order #2481 details">
-      <div class="receipt">
-        <div class="r-head">
-          <h2>Order #2481</h2>
-          <span class="status cooking">In the kitchen</span>
+    <aside class="receipt-wrap" aria-label="Order details">
+      @if (selectedOrder(); as order) {
+        @let status = order.orderstatus.trim().toLowerCase();
+
+        <div class="receipt">
+          <div class="r-head">
+            <h2>Order {{ order.ordernum }}</h2>
+            <span
+              class="status"
+              [class.received]="status === 'received'"
+              [class.cooking]="status === 'in the kitchen'"
+              [class.served]="status === 'served'"
+              [class.cancelled]="status === 'cancelled'"
+            >
+              {{ order.orderstatus }}
+            </span>
+          </div>
+
+          <p class="r-meta">
+            {{ order.table }}
+            @if (order.createdAt) {
+              ·
+              <time [attr.datetime]="order.createdAt">{{
+                order.createdAt | date: 'shortTime'
+              }}</time>
+            }
+          </p>
+
+          @if (status === 'cancelled') {
+            <p class="r-note">Order cancelled</p>
+          } @else {
+            <ol class="progress" aria-label="Order progress">
+              <li
+                [class.now]="status === 'received'"
+                [class.done]="status === 'in the kitchen' || status === 'served'"
+              >
+                <span></span>Received
+              </li>
+              <li [class.now]="status === 'in the kitchen'" [class.done]="status === 'served'">
+                <span></span>In the kitchen
+              </li>
+              <li [class.now]="status === 'served'"><span></span>Served</li>
+            </ol>
+          }
+
+          <ul class="lines">
+            @for (dish of order.dishes; track $index) {
+              <li>
+                <span>{{ dish.quantity }}× {{ dish.name }}</span>
+                <b>
+                  {{
+                    dish.unitPrice == null
+                      ? '—'
+                      : (dish.unitPrice * dish.quantity | currency: 'USD')
+                  }}
+                </b>
+              </li>
+            }
+          </ul>
+
+          <dl class="sums">
+            <div class="grand">
+              <dt>Total</dt>
+              <dd>{{ order.total == null ? '—' : (order.total | currency: 'USD') }}</dd>
+            </div>
+          </dl>
+
+          @if (order.readyAt && (status === 'received' || status === 'in the kitchen')) {
+            <p class="r-note">Estimated ready at {{ order.readyAt | date: 'shortTime' }}</p>
+          }
         </div>
-        <p class="r-meta">Dine-in · Table 7 · 8:12 PM</p>
-
-        <ol class="progress">
-          <li class="done"><span></span>Received</li>
-          <li class="now"><span></span>In the kitchen</li>
-          <li><span></span>Served</li>
-        </ol>
-
-        <ul class="lines">
-          <li><span>1× Grilled sea bass</span><b>$18.00</b></li>
-          <li><span>1× Lemon rice</span><b>$3.00</b></li>
-        </ul>
-
-        <dl class="sums">
-          <div>
-            <dt>Subtotal</dt>
-            <dd>$21.00</dd>
-          </div>
-          <div>
-            <dt>Service (10%)</dt>
-            <dd>$2.10</dd>
-          </div>
-          <div class="grand">
-            <dt>Total</dt>
-            <dd>$23.10</dd>
-          </div>
-        </dl>
-
-        <p class="r-note">Pay at the table. Ready in about 12 minutes.</p>
-      </div>
+      } @else {
+        <div class="receipt">
+          <p>No orders to display.</p>
+        </div>
+      }
     </aside>
   </div>
 </main>
