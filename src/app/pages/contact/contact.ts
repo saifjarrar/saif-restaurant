@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api-url';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs';
@@ -37,7 +38,7 @@ export class Contact {
     this.status.set('');
 
     this.http
-      .post<void>('https://localhost:7118/api/contact', body)
+      .post<void>(`${API_URL}/contact`, body)
       .pipe(finalize(() => this.sending.set(false)))
       .subscribe({
         next: () => {

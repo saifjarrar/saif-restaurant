@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api-url';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -39,7 +40,7 @@ export class Login {
     }
 
     this.http
-      .post<LoginResponse>('https://localhost:7118/api/Auth/login', this.userform.value)
+      .post<LoginResponse>(`${API_URL}/Auth/login`, this.userform.value)
       .subscribe({
         next: (response) => {
           if (response.isSuccess && response.result) {

@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api-url';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -67,7 +68,7 @@ export interface CreateReservationRequest {
 })
 export class DashboardService {
   private http = inject(HttpClient);
-  private baseUrl = 'https://localhost:7118/api/Dashboard';
+  private baseUrl = `${API_URL}/Dashboard`;
 
   getDashboard(): Observable<DashboardData> {
     return this.http.get<DashboardData>(this.baseUrl);

@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api-url';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -58,7 +59,7 @@ export class Signup {
     };
 
     this.http
-      .post<SignupResponse>('https://localhost:7118/api/Auth/register', signupvalue)
+      .post<SignupResponse>(`${API_URL}/Auth/register`, signupvalue)
       .subscribe({
         next: (response) => {
           if (response.isSuccess && response.result) {
