@@ -1,15 +1,4 @@
 import { Routes } from '@angular/router';
-import { Login } from './pages/login/login';
-import { Layout } from './pages/layout/layout';
-import { Dashboard } from './pages/dashboard/dashboard';
-import { Signup } from './pages/signup/signup';
-import { Reservation } from './pages/reservation/reservation';
-import { Menu } from './pages/menu/menu';
-import { Offers } from './pages/offers/offers';
-import { Contact } from './pages/contact/contact';
-import { Orders } from './pages/orders/orders';
-import { Landing } from './pages/landing/landing';
-import { NewOrder } from './pages/new-order/new-order';
 import { authGuard } from './guards/auth-guards-guard';
 
 export const routes: Routes = [
@@ -20,51 +9,48 @@ export const routes: Routes = [
   },
   {
     path: 'landing',
-    component: Landing,
+    loadComponent: () => import('./pages/landing/landing').then((m) => m.Landing),
   },
   {
     path: 'login',
-    component: Login,
+    loadComponent: () => import('./pages/login/login').then((m) => m.Login),
   },
   {
     path: 'signup',
-    component: Signup,
+    loadComponent: () => import('./pages/signup/signup').then((m) => m.Signup),
   },
   {
     path: 'layout',
-    component: Layout,
     canActivate: [authGuard],
+    loadComponent: () => import('./pages/layout/layout').then((m) => m.Layout),
     children: [
       {
         path: 'dashboard',
-        component: Dashboard,
-        canActivate: [authGuard],
+        loadComponent: () => import('./pages/dashboard/dashboard').then((m) => m.Dashboard),
       },
       {
         path: 'reservation',
-        component: Reservation,
+        loadComponent: () => import('./pages/reservation/reservation').then((m) => m.Reservation),
       },
       {
         path: 'menu',
-        component: Menu,
+        loadComponent: () => import('./pages/menu/menu').then((m) => m.Menu),
       },
       {
         path: 'offers',
-        component: Offers,
+        loadComponent: () => import('./pages/offers/offers').then((m) => m.Offers),
       },
       {
         path: 'contact',
-        component: Contact,
+        loadComponent: () => import('./pages/contact/contact').then((m) => m.Contact),
       },
       {
         path: 'orders',
-        component: Orders,
-        canActivate: [authGuard],
+        loadComponent: () => import('./pages/orders/orders').then((m) => m.Orders),
       },
       {
         path: 'neworder',
-        component: NewOrder,
-        canActivate: [authGuard],
+        loadComponent: () => import('./pages/new-order/new-order').then((m) => m.NewOrder),
       },
     ],
   },
