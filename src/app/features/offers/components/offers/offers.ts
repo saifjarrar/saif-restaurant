@@ -1,5 +1,5 @@
-import { TranslatePipe } from '../../i18n/translate.pipe';
 import { Component } from '@angular/core';
+import { TranslatePipe } from '../../../../i18n/translate.pipe';
 
 @Component({
   imports: [TranslatePipe],
