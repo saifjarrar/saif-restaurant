@@ -1,0 +1,6 @@
+@saifRestaurantApi_HostAddress = http://localhost:5054
+
+GET {{saifRestaurantApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
