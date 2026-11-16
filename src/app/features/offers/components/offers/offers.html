@@ -1,0 +1,158 @@
+<main class="page">
+  <header class="head">
+    <h1>{{ 'Offers' | translate }}</h1>
+    <p class="sub">
+      {{ 'Pick an offer, add the code when you order, and the discount shows on your bill.' | translate }}
+    </p>
+  </header>
+
+  <!-- Today's offer -->
+  <section class="today" [attr.aria-label]="'Today\'s offer' | translate">
+    <div>
+      <span class="label">{{ 'Today only' | translate }}</span>
+      <h2>{{ '2-for-1 on all desserts' | translate }}</h2>
+      <p>{{ 'Order any dessert after 9:00 PM and get a second one free. Dine-in only.' | translate }}</p>
+    </div>
+    <div class="ends">
+      <small>{{ 'Ends tonight' | translate }}</small>
+      <b>{{ '11:00 PM' | translate }}</b>
+    </div>
+  </section>
+
+  <div class="layout">
+    <!-- Offers list -->
+    <section class="left" [attr.aria-label]="'All offers' | translate">
+      <!-- CSS-only filter (no TypeScript needed) -->
+      <input class="filter" type="radio" name="type" id="o-all" checked [attr.aria-label]="'All' | translate" />
+      <input class="filter" type="radio" name="type" id="o-dine" [attr.aria-label]="'Dine-in' | translate" />
+      <input class="filter" type="radio" name="type" id="o-delivery" [attr.aria-label]="'Delivery' | translate" />
+      <input class="filter" type="radio" name="type" id="o-takeaway" [attr.aria-label]="'Takeaway' | translate" />
+
+      <nav class="tabs" [attr.aria-label]="'Offer type' | translate">
+        <label for="o-all">{{ 'All offers' | translate }}</label>
+        <label for="o-dine">{{ 'Dine-in' | translate }}</label>
+        <label for="o-delivery">{{ 'Delivery' | translate }}</label>
+        <label for="o-takeaway">{{ 'Takeaway' | translate }}</label>
+      </nav>
+
+      <div class="grid">
+        <article class="offer delivery takeaway">
+          <div class="band">
+            <span class="pill">{{ 'Delivery and takeaway' | translate }}</span>
+            <p class="value">{{ '15% off' | translate }}</p>
+          </div>
+          <div class="body">
+            <h3>{{ 'Your first order' | translate }}</h3>
+            <p class="desc">{{ 'New to Safe Restaurant? Get 15% off your first online order.' | translate }}</p>
+            <p class="valid">{{ 'Ends 30 Nov' | translate }}</p>
+            <div class="code-row"><span>{{ 'Use code' | translate }}</span><b>WELCOME15</b></div>
+          </div>
+        </article>
+
+        <article class="offer dine">
+          <div class="band">
+            <span class="pill">{{ 'Dine-in' | translate }}</span>
+            <p class="value">{{ 'Free dessert' | translate }}</p>
+          </div>
+          <div class="body">
+            <h3>{{ 'Something sweet' | translate }}</h3>
+            <p class="desc">{{ 'Choose a knafeh or baklava free with any main course.' | translate }}</p>
+            <p class="valid">{{ 'Sunday to Thursday' | translate }}</p>
+            <div class="code-row"><span>{{ 'Use code' | translate }}</span><b>SWEET</b></div>
+          </div>
+        </article>
+
+        <article class="offer dine takeaway">
+          <div class="band">
+            <span class="pill">{{ 'Dine-in and takeaway' | translate }}</span>
+            <p class="value">{{ '$9 lunch' | translate }}</p>
+          </div>
+          <div class="body">
+            <h3>{{ 'Lunch combo' | translate }}</h3>
+            <p class="desc">{{ 'Any lunch main plus a drink of your choice.' | translate }}</p>
+            <p class="valid">{{ 'Every day, 12 to 4 PM' | translate }}</p>
+            <div class="code-row none"><span>{{ 'No code needed' | translate }}</span></div>
+          </div>
+        </article>
+
+        <article class="offer delivery">
+          <div class="band">
+            <span class="pill">{{ 'Delivery' | translate }}</span>
+            <p class="value">{{ 'Free delivery' | translate }}</p>
+          </div>
+          <div class="body">
+            <h3>{{ 'Delivery on us' | translate }}</h3>
+            <p class="desc">{{ 'Order $25 or more and we cover the delivery fee.' | translate }}</p>
+            <p class="valid">{{ 'Ends 15 Dec' | translate }}</p>
+            <div class="code-row"><span>{{ 'Use code' | translate }}</span><b>SHIPFREE</b></div>
+          </div>
+        </article>
+
+        <article class="offer dine">
+          <div class="band">
+            <span class="pill">{{ 'Dine-in' | translate }}</span>
+            <p class="value">{{ 'Kids eat free' | translate }}</p>
+          </div>
+          <div class="body">
+            <h3>{{ 'Little guests' | translate }}</h3>
+            <p class="desc">{{ 'One free kids\' meal with every adult main course.' | translate }}</p>
+            <p class="valid">{{ 'Friday and Saturday' | translate }}</p>
+            <div class="code-row none"><span>{{ 'No code needed' | translate }}</span></div>
+          </div>
+        </article>
+
+        <article class="offer dine">
+          <div class="band">
+            <span class="pill">{{ 'Dine-in' | translate }}</span>
+            <p class="value">{{ '$39 for four' | translate }}</p>
+          </div>
+          <div class="body">
+            <h3>{{ 'Family feast' | translate }}</h3>
+            <p class="desc">{{ 'Mansaf, fattoush, hummus and knafeh to share, in the family section.' | translate }}</p>
+            <p class="valid">{{ 'Friday and Saturday' | translate }}</p>
+            <div class="code-row none"><span>{{ 'No code needed' | translate }}</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Side -->
+    <aside class="side">
+      <section class="card rewards">
+        <h2>{{ 'Safe Rewards' | translate }}</h2>
+        <p class="r-text"><b>{{ '7 of 10' | translate }}</b> {{ 'visits done' | translate }}</p>
+        <ol class="dots" [attr.aria-label]="'7 of 10 visits' | translate">
+          <li class="on"></li>
+          <li class="on"></li>
+          <li class="on"></li>
+          <li class="on"></li>
+          <li class="on"></li>
+          <li class="on"></li>
+          <li class="on"></li>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ol>
+        <p class="r-note">{{ '3 more visits and your next main course is free.' | translate }}</p>
+      </section>
+
+      <section class="card">
+        <h2>{{ 'How to use an offer' | translate }}</h2>
+        <ol class="steps">
+          <li><span>1</span>{{ 'Pick the offer you want.' | translate }}</li>
+          <li><span>2</span>{{ 'Enter the code online, or tell your server.' | translate }}</li>
+          <li><span>3</span>{{ 'See the discount on your bill.' | translate }}</li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <h2>{{ 'Good to know' | translate }}</h2>
+        <ul class="terms">
+          <li>{{ 'One offer per order, unless it says otherwise.' | translate }}</li>
+          <li>{{ 'Offers can change or end without notice.' | translate }}</li>
+          <li>{{ 'Delivery offers apply inside our delivery area only.' | translate }}</li>
+        </ul>
+      </section>
+    </aside>
+  </div>
+</main>
