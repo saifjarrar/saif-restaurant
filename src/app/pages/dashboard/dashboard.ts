@@ -81,7 +81,7 @@ export class Dashboard implements OnInit {
     return (quantity / max) * 100;
   }
   onNewOrder() {
-    this.router.navigateByUrl('/layout/neworder');
+    this.router.navigateByUrl('/layout/orders/new-order');
     this.dashboardService.getDashboard();
   }
   private readonly now = toSignal(timer(0, 1000).pipe(map(() => Date.now())), {
