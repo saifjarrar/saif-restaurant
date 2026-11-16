@@ -1,0 +1,21 @@
+
+.language-switch {
+  position: fixed;
+  inset-block-end: max(1rem, env(safe-area-inset-bottom));
+  inset-inline-end: 1rem;
+  z-index: 1000;
+  min-height: 44px;
+  padding-inline: 1rem;
+  border: 1px solid white;
+  border-radius: 999px;
+  background: #124e3f;
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.language-switch:focus-visible {
+  outline: 3px solid #e6a623;
+  outline-offset: 3px;
+}

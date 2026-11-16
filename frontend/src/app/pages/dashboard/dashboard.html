@@ -1,0 +1,136 @@
+<main class="page">
+  <header class="head">
+    <div>
+      <h1>{{ 'Today at Saif Restaurant' | translate }}</h1>
+      <p class="sub">{{ date | date: 'fullDate' }}</p>
+    </div>
+    <span class="open"><i></i>{{ 'Kitchen open until 11:00 PM' | translate }}</span>
+  </header>
+
+  <section class="strip" [attr.aria-label]="'Summary' | translate">
+    @for (info of restaurantinfo(); track info.title) {
+      <div class="stat">
+        <span class="label">{{ (info.title) | translate }}</span>
+        <b>{{ info.value }}</b>
+        <small [class.up]="info.color === 'up'">{{ (info.describe) | translate }}</small>
+      </div>
+    }
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <h2>{{ 'On the kitchen board' | translate }}</h2>
+      <div class="head-actions">
+        <span class="count">{{ ordertickets().length }} {{ 'orders' | translate }}</span>
+        <button class="new-btn" type="button" (click)="onNewOrder()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          {{ 'New order' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <div class="tickets">
+     @for (order of ordertickets().filter(o => o.orderstatus.toLowerCase() !== 'cancelled'); track order.id) {
+        @let status = order.orderstatus.toLowerCase();
+        @let saving = savingOrderIds().includes(order.id);
+
+        <article
+          class="ticket"
+          [class.received]="status === 'received'"
+          [class.cooking]="status === 'in the kitchen'"
+          [class.served]="status === 'served'"
+          [class.cancelled]="status === 'cancelled'"
+        >
+          <div class="t-top">
+            <b>{{ order.ordernum }}</b>
+            <span
+              class="status"
+              [class.received]="status === 'received'"
+              [class.cooking]="status === 'in the kitchen'"
+              [class.served]="status === 'served'"
+              [class.cancelled]="status === 'cancelled'"
+            >
+              {{ (order.orderstatus) | translate }}
+            </span>
+          </div>
+
+          <p class="t-table">{{ (order.table) | translate }}</p>
+
+          <ul>
+            @for (dish of order.dishes; track $index) {
+              <li>
+                <span>{{ dish.quantity }}×</span> {{ (dish.name) | translate }}
+              </li>
+            }
+          </ul>
+
+          @if (status === 'cancelled') {
+            <p class="t-time">{{ 'Order cancelled' | translate }}</p>
+          } @else if (status === 'served') {
+            <p class="t-time">{{ 'Served and enjoyed' | translate }}</p>
+            <button class="t-btn" type="button" [disabled]="saving" (click)="markAs(order.id)">
+              {{ 'Return to Received' | translate }}
+            </button>
+          } @else if (status === 'received' || status === 'in the kitchen') {
+            <p class="t-time">{{ readyTimeLabel(order) }}</p>
+            <button class="t-btn" type="button" [disabled]="saving" (click)="markAs(order.id)">
+              {{ (status === 'received' ? 'Start Cooking' : 'Mark as Served') | translate }}
+            </button>
+            <button
+              class="t-btn cancel-btn"
+              type="button"
+              [disabled]="saving"
+              (click)="cancelOrder(order.id)"
+            >
+              {{ 'Cancel' | translate }}
+            </button>
+          }
+        </article>
+      }
+    </div>
+  </section>
+
+  <div class="two">
+    <section class="block">
+      <div class="block-head">
+        <h2>{{ 'Tonight\'s reservations' | translate }}</h2>
+        <span class="count">{{ tonightreservations().length }} {{ 'of 24' | translate }}</span>
+      </div>
+
+      <ol class="slots">
+        @for (reservation of tonightreservations(); track reservation.time) {
+          <li>
+            <time>{{ reservation.time }}</time>
+            <div>
+              <b>{{ reservation.name }}</b>
+              <small>{{ reservation.guests }} {{ 'guests ·' | translate }} {{ (reservation.table) | translate }}</small>
+            </div>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <h2>{{ 'Most ordered today' | translate }}</h2>
+        <span class="count">{{ 'Dishes' | translate }}</span>
+      </div>
+
+      <ul class="dishes">
+        @for (dish of mostordered(); track dish.name) {
+          <li>
+            <div class="d-row">
+              <b>{{ (dish.name) | translate }}</b>
+              <span>{{ dish.quantity }}</span>
+            </div>
+            <div class="bar">
+              <i [style.--w]="barWidth(dish.quantity) + '%'"></i>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+  </div>
+</main>

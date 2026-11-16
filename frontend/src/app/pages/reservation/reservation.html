@@ -1,0 +1,231 @@
+<main class="page">
+  <header class="head">
+    <h1>{{ 'Reserve a table' | translate }}</h1>
+    <p class="sub">{{ 'Pick a day, a time and how many of you are coming. We\'ll hold your table.' | translate }}</p>
+  </header>
+
+  <div class="layout">
+    <!-- Booking form -->
+    <section class="booking" [attr.aria-label]="'Book a table' | translate" [formGroup]="form">
+      <!-- Day -->
+      <div class="group">
+        <h2>{{ 'Day' | translate }}</h2>
+
+        <div class="chips days">
+          @for (day of days; track day.value) {
+            <input
+              class="pick"
+              type="radio"
+              formControlName="date"
+              [value]="day.value"
+              [id]="'day-' + day.value"
+            />
+
+            <label [attr.for]="'day-' + day.value">
+              <small>{{ (day.weekday) | translate }}</small>
+              <b>{{ day.number }}</b>
+            </label>
+          }
+        </div>
+      </div>
+
+      <!-- Guests -->
+      <div class="group">
+        <h2>{{ 'Guests' | translate }}</h2>
+
+        <div class="chips guests">
+          @for (n of guestOptions; track n) {
+            <input
+              class="pick"
+              type="radio"
+              formControlName="guests"
+              [value]="n"
+              [id]="'guests-' + n"
+            />
+
+            <label [attr.for]="'guests-' + n">
+              {{ n }}
+            </label>
+          }
+        </div>
+      </div>
+
+      <!-- Time -->
+      <div class="group">
+        <h2>{{ 'Time' | translate }}</h2>
+
+        <div class="chips times">
+          @for (slot of times; track slot.value) {
+            <input
+              class="pick"
+              type="radio"
+              formControlName="time"
+              [value]="slot.value"
+              [id]="'time-' + slot.value"
+              [disabled]="slot.full"
+            />
+
+            <label [attr.for]="'time-' + slot.value">
+              {{ slot.value }}
+
+              @if (slot.full) {
+                <small>{{ 'Full' | translate }}</small>
+              }
+            </label>
+          }
+        </div>
+      </div>
+
+      <!-- Seating -->
+      <div class="group">
+        <h2>{{ 'Seating' | translate }}</h2>
+
+        <div class="chips area">
+          @for (option of seatingOptions; track option) {
+            <input
+              class="pick"
+              type="radio"
+              formControlName="seating"
+              [value]="option"
+              [id]="'seat-' + option"
+            />
+
+            <label [attr.for]="'seat-' + option">
+              {{ (option) | translate }}
+            </label>
+          }
+        </div>
+      </div>
+
+      <!-- Name and Phone -->
+      <div class="group two-fields">
+        <div class="field">
+          <input
+            type="text"
+            id="res-name"
+            formControlName="name"
+            placeholder=" "
+            autocomplete="name"
+          />
+
+          <label for="res-name">{{ 'Full name' | translate }}</label>
+
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <p class="error-text">{{ 'Please enter your name' | translate }}</p>
+          }
+        </div>
+
+        <div class="field">
+          <input
+            type="tel"
+            id="res-phone"
+            formControlName="phone"
+            placeholder=" "
+            autocomplete="tel"
+          />
+
+          <label for="res-phone">{{ 'Phone number' | translate }}</label>
+
+          @if (form.controls.phone.touched && form.controls.phone.invalid) {
+            <p class="error-text">{{ 'Enter a valid phone number' | translate }}</p>
+          }
+        </div>
+
+        <!-- Notes -->
+        <div class="field wide">
+          <textarea id="res-notes" rows="3" placeholder=" "></textarea>
+
+          <label for="res-notes"> {{ 'Notes (allergies, birthday, high chair)' | translate }} </label>
+        </div>
+      </div>
+
+      <!-- Server Error -->
+      @if (errorMessage()) {
+        <p class="error-text server-error">
+          {{ (errorMessage()) | translate }}
+        </p>
+      }
+
+      <!-- Confirm Button -->
+      @if (auth.isAdmin()) {
+        <button class="btn" type="button" [disabled]="isSending()" (click)="confirm()">
+          {{ (isSending() ? 'Sending...' : 'Confirm reservation') | translate }}
+        </button>
+      } @else {
+        <button class="btn" type="button" [disabled]="isSending()" (click)="confirmcustomer()">
+          {{ (isSending() ? 'Sending...' : 'Confirm reservation') | translate }}
+        </button>
+      }
+    </section>
+
+    <!-- Side -->
+    <aside class="side">
+      <!-- Opening Hours -->
+      <section class="card dark">
+        <h2>{{ 'Opening hours' | translate }}</h2>
+
+        <ul class="hours">
+          <li>
+            <span>{{ 'Sunday to Thursday' | translate }}</span>
+            <b>{{ '12:00 PM to 11:00 PM' | translate }}</b>
+          </li>
+
+          <li>
+            <span>{{ 'Friday and Saturday' | translate }}</span>
+            <b>{{ '12:00 PM to 12:00 AM' | translate }}</b>
+          </li>
+        </ul>
+
+        <p class="note">{{ 'Kitchen closes 30 minutes before closing time.' | translate }}</p>
+      </section>
+
+      <!-- Upcoming Reservations -->
+      <section class="card">
+        <h2>{{ 'Your upcoming reservations' | translate }}</h2>
+
+        <ul class="upcoming">
+          <li>
+            <div class="date">
+              <small>{{ 'Fri' | translate }}</small>
+              <b>6</b>
+            </div>
+
+            <div class="info">
+              <b>{{ '8:00 PM · 4 guests' | translate }}</b>
+              <small>{{ 'Terrace' | translate }}</small>
+            </div>
+
+            <span class="status ok">{{ 'Confirmed' | translate }}</span>
+          </li>
+
+          <li>
+            <div class="date">
+              <small>{{ 'Sat' | translate }}</small>
+              <b>14</b>
+            </div>
+
+            <div class="info">
+              <b>{{ '7:00 PM · 2 guests' | translate }}</b>
+              <small>{{ 'Indoor' | translate }}</small>
+            </div>
+
+            <span class="status wait">{{ 'Pending' | translate }}</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Good to Know -->
+      <section class="card">
+        <h2>{{ 'Good to know' | translate }}</h2>
+
+        <ul class="tips">
+          <li>{{ 'We hold your table for 15 minutes after the booking time.' | translate }}</li>
+
+          <li>{{ 'For groups of 9 or more, please call us.' | translate }}</li>
+
+          <li>{{ 'Tell us about allergies in the notes, and the kitchen will prepare for them.' | translate }}</li>
+        </ul>
+      </section>
+    </aside>
+  </div>
+</main>

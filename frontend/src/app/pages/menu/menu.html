@@ -1,0 +1,148 @@
+<main class="page">
+  <!-- CSS-only category filter (no TypeScript needed) -->
+  <input class="filter" type="radio" name="cat" id="cat-all" checked [attr.aria-label]="'All' | translate" />
+  <input class="filter" type="radio" name="cat" id="cat-starters" [attr.aria-label]="'Starters' | translate" />
+  <input class="filter" type="radio" name="cat" id="cat-mains" [attr.aria-label]="'Mains' | translate" />
+  <input class="filter" type="radio" name="cat" id="cat-grills" [attr.aria-label]="'Grills' | translate" />
+  <input class="filter" type="radio" name="cat" id="cat-desserts" [attr.aria-label]="'Desserts' | translate" />
+  <input class="filter" type="radio" name="cat" id="cat-drinks" [attr.aria-label]="'Drinks' | translate" />
+
+  <header class="head">
+    <h1>{{ 'Our menu' | translate }}</h1>
+    <p class="sub">
+      {{ 'Cooked fresh every day. Please tell your server about any allergies before you order.' | translate }}
+    </p>
+  </header>
+
+  <nav class="tabs" [attr.aria-label]="'Menu categories' | translate">
+    <label for="cat-all">{{ 'All' | translate }}</label>
+    <label for="cat-starters">{{ 'Starters' | translate }}</label>
+    <label for="cat-mains">{{ 'Mains' | translate }}</label>
+    <label for="cat-grills">{{ 'Grills' | translate }}</label>
+    <label for="cat-desserts">{{ 'Desserts' | translate }}</label>
+    <label for="cat-drinks">{{ 'Drinks' | translate }}</label>
+  </nav>
+
+  <div class="menu">
+    <!-- Starters -->
+    <section class="group starters">
+      <h2>{{ 'Starters' | translate }}</h2>
+      <ul class="items">
+        @for (starter of menu.starters.items; track starter.name) {
+          <li class="item">
+            @if (starter.imageUrl) {
+              <img class="photo" [src]="starter.imageUrl" [alt]="starter.name" loading="lazy" />
+            } @else {
+              <div class="photo empty" aria-hidden="true"></div>
+            }
+            <div class="info">
+              <div class="row">
+                <b>{{ (starter.name) | translate }}</b
+                ><span class="dots"></span
+                ><span class="price">${{ starter.price.toFixed(2) }}</span>
+              </div>
+              <p>{{ (starter.description) | translate }}</p>
+              <span [class]="'tag ' + starter.category.toLowerCase()">{{ (starter.category | titlecase) | translate }}</span>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <!-- Mains -->
+    <section class="group mains">
+      <h2>{{ 'Mains' | translate }}</h2>
+      <ul class="items">
+        @for (main of menu.mains.items; track main.name) {
+          <li class="item">
+            @if (main.imageUrl) {
+              <img class="photo" [src]="main.imageUrl" [alt]="main.name" loading="lazy" />
+            } @else {
+              <div class="photo empty" aria-hidden="true"></div>
+            }
+            <div class="info">
+              <div class="row">
+                <b>{{ (main.name) | translate }}</b
+                ><span class="dots"></span><span class="price">${{ main.price.toFixed(2) }}</span>
+              </div>
+              <p>{{ (main.description) | translate }}</p>
+              <span [class]="'tag ' + main.category.toLowerCase()">{{ (main.category | titlecase) | translate }}</span>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <!-- Grills -->
+    <section class="group grills">
+      <h2>{{ 'Grills' | translate }}</h2>
+      <ul class="items">
+        @for (grill of menu.grills.items; track grill.name) {
+          <li class="item">
+            @if (grill.imageUrl) {
+              <img class="photo" [src]="grill.imageUrl" [alt]="grill.name" loading="lazy" />
+            } @else {
+              <div class="photo empty" aria-hidden="true"></div>
+            }
+            <div class="info">
+              <div class="row">
+                <b>{{ (grill.name) | translate }}</b
+                ><span class="dots"></span><span class="price">${{ grill.price.toFixed(2) }}</span>
+              </div>
+              <p>{{ (grill.description) | translate }}</p>
+              <span [class]="'tag ' + grill.category.toLowerCase()">{{ (grill.category | titlecase) | translate }}</span>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <!-- Desserts -->
+    <section class="group desserts">
+      <h2>{{ 'Desserts' | translate }}</h2>
+      <ul class="items">
+        @for (dessert of menu.desserts.items; track dessert.name) {
+          <li class="item">
+            @if (dessert.imageUrl) {
+              <img class="photo" [src]="dessert.imageUrl" [alt]="dessert.name" loading="lazy" />
+            } @else {
+              <div class="photo empty" aria-hidden="true"></div>
+            }
+            <div class="info">
+              <div class="row">
+                <b>{{ (dessert.name) | translate }}</b
+                ><span class="dots"></span
+                ><span class="price">${{ dessert.price.toFixed(2) }}</span>
+              </div>
+              <p>{{ (dessert.description) | translate }}</p>
+              <span [class]="'tag ' + dessert.category.toLowerCase()">{{ (dessert.category | titlecase) | translate }}</span>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <!-- Drinks -->
+    <section class="group drinks">
+      <h2>{{ 'Drinks' | translate }}</h2>
+      <ul class="items">
+        @for (drink of menu.drinks.items; track drink.name) {
+          <li class="item">
+            @if (drink.imageUrl) {
+              <img class="photo" [src]="drink.imageUrl" [alt]="drink.name" loading="lazy" />
+            } @else {
+              <div class="photo empty" aria-hidden="true"></div>
+            }
+            <div class="info">
+              <div class="row">
+                <b>{{ (drink.name) | translate }}</b
+                ><span class="dots"></span><span class="price">${{ drink.price.toFixed(2) }}</span>
+              </div>
+              <p>{{ (drink.description) | translate }}</p>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+  </div>
+</main>

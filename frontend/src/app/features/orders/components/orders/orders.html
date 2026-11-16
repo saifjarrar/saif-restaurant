@@ -1,0 +1,171 @@
+<main class="page">
+  <header class="head">
+    <div>
+      <h1>{{ 'Orders' | translate }}</h1>
+      <p class="sub">{{ 'Everything the kitchen is working on, and what has gone out tonight.' | translate }}</p>
+    </div>
+    <span class="today"
+      ><b>{{ ordertickets().length }}</b> {{ 'orders today' | translate }}</span
+    >
+  </header>
+
+  <div class="layout">
+    <section class="left" [attr.aria-label]="'Orders list' | translate">
+      <!-- CSS-only status filter (no TypeScript needed) -->
+      <input class="filter" type="radio" name="status" id="f-all" checked [attr.aria-label]="'All' | translate" />
+      <input class="filter" type="radio" name="status" id="f-received" [attr.aria-label]="'Received' | translate" />
+      <input class="filter" type="radio" name="status" id="f-cooking" [attr.aria-label]="'In the kitchen' | translate" />
+      <input class="filter" type="radio" name="status" id="f-served" [attr.aria-label]="'Served' | translate" />
+      <input class="filter" type="radio" name="status" id="f-cancelled" [attr.aria-label]="'Cancelled' | translate" />
+
+      <!-- The numbers except "All" are still fixed, they will be calculated in the TypeScript step -->
+      <nav class="tabs" [attr.aria-label]="'Order status' | translate">
+        <label for="f-all"
+          >{{ 'All' | translate }} <span>{{ orderCounts().all }}</span></label
+        >
+        <label for="f-received"
+          >{{ 'Received' | translate }} <span>{{ orderCounts().received }}</span></label
+        >
+        <label for="f-cooking"
+          >{{ 'In the kitchen' | translate }} <span>{{ orderCounts().inKitchen }}</span></label
+        >
+        <label for="f-served"
+          >{{ 'Served' | translate }} <span>{{ orderCounts().served }}</span></label
+        >
+        <label for="f-cancelled"
+          >{{ 'Cancelled' | translate }} <span>{{ orderCounts().cancelled }}</span></label
+        >
+      </nav>
+
+      <ul class="orders">
+        @for (order of ordertickets(); track order.id) {
+          <!-- One row per order. The status class colours the edge and is used by the filter -->
+          <li
+            class="order"
+            [class.received]="order.orderstatus.toLowerCase() == 'received'"
+            [class.cooking]="order.orderstatus.toLowerCase() == 'in the kitchen'"
+            [class.served]="order.orderstatus.toLowerCase() == 'served'"
+            [class.cancelled]="order.orderstatus.toLowerCase() == 'cancelled'"
+            [class.selected]="selectedOrder()?.id === order.id"
+          >
+            <button
+              class="order-select"
+              type="button"
+              [attr.aria-label]="('Show details for order' | translate) + ' ' + order.ordernum"
+              [attr.aria-pressed]="selectedOrder()?.id === order.id"
+              (click)="selectedOrderId.set(order.id)"
+            ></button>
+            <div class="who">
+              <b>{{ order.ordernum }}</b>
+              <small>{{ (order.table) | translate }}</small>
+            </div>
+
+            <!-- All the dishes live inside ONE cell, so the columns stay aligned -->
+            <ul class="what">
+              @for (dish of order.dishes; track dish.name) {
+                <li>
+                  <span>{{ dish.quantity }}×</span> {{ (dish.name) | translate }}
+                </li>
+              }
+            </ul>
+
+            <time [attr.datetime]="order.createdAt">
+              {{ order.createdAt ? (order.createdAt | date: 'shortTime') : '—' }}
+            </time>
+
+            <span class="total">
+              {{ order.total == null ? '—' : (order.total | currency: 'USD') }}
+            </span>
+            <span
+              class="status"
+              [class.received]="order.orderstatus.toLowerCase() == 'received'"
+              [class.cooking]="order.orderstatus.toLowerCase() == 'in the kitchen'"
+              [class.served]="order.orderstatus.toLowerCase() == 'served'"
+              [class.cancelled]="order.orderstatus.toLowerCase() == 'cancelled'"
+              >{{ (order.orderstatus) | translate }}</span
+            >
+          </li>
+        }
+      </ul>
+    </section>
+
+    <!-- Receipt for the selected order (still fixed, it becomes dynamic in the TypeScript step) -->
+    <aside class="receipt-wrap" [attr.aria-label]="'Order details' | translate">
+      @if (selectedOrder(); as order) {
+        @let status = order.orderstatus.trim().toLowerCase();
+
+        <div class="receipt">
+          <div class="r-head">
+            <h2>{{ 'Order' | translate }} {{ order.ordernum }}</h2>
+            <span
+              class="status"
+              [class.received]="status === 'received'"
+              [class.cooking]="status === 'in the kitchen'"
+              [class.served]="status === 'served'"
+              [class.cancelled]="status === 'cancelled'"
+            >
+              {{ (order.orderstatus) | translate }}
+            </span>
+          </div>
+
+          <p class="r-meta">
+            {{ (order.table) | translate }}
+            @if (order.createdAt) {
+              ·
+              <time [attr.datetime]="order.createdAt">{{
+                order.createdAt | date: 'shortTime'
+              }}</time>
+            }
+          </p>
+
+          @if (status === 'cancelled') {
+            <p class="r-note">{{ 'Order cancelled' | translate }}</p>
+          } @else {
+            <ol class="progress" [attr.aria-label]="'Order progress' | translate">
+              <li
+                [class.now]="status === 'received'"
+                [class.done]="status === 'in the kitchen' || status === 'served'"
+              >
+                <span></span>{{ 'Received' | translate }}
+              </li>
+              <li [class.now]="status === 'in the kitchen'" [class.done]="status === 'served'">
+                <span></span>{{ 'In the kitchen' | translate }}
+              </li>
+              <li [class.now]="status === 'served'"><span></span>{{ 'Served' | translate }}</li>
+            </ol>
+          }
+
+          <ul class="lines">
+            @for (dish of order.dishes; track $index) {
+              <li>
+                <span>{{ dish.quantity }}× {{ (dish.name) | translate }}</span>
+                <b>
+                  {{
+                    dish.unitPrice == null
+                      ? '—'
+                      : (dish.unitPrice * dish.quantity | currency: 'USD')
+                  }}
+                </b>
+              </li>
+            }
+          </ul>
+
+          <dl class="sums">
+            <div class="grand">
+              <dt>{{ 'Total' | translate }}</dt>
+              <dd>{{ order.total == null ? '—' : (order.total | currency: 'USD') }}</dd>
+            </div>
+          </dl>
+
+          @if (order.readyAt && (status === 'received' || status === 'in the kitchen')) {
+            <p class="r-note">{{ 'Estimated ready at' | translate }} {{ order.readyAt | date: 'shortTime' }}</p>
+          }
+        </div>
+      } @else {
+        <div class="receipt">
+          <p>{{ 'No orders to display.' | translate }}</p>
+        </div>
+      }
+    </aside>
+  </div>
+</main>

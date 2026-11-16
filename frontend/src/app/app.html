@@ -1,0 +1,8 @@
+<app-food-particles></app-food-particles>
+
+<router-outlet></router-outlet>
+
+<button class="language-switch" type="button" (click)="locale.toggle()"
+  [attr.lang]="locale.language() === 'ar' ? 'en' : 'ar'">
+  {{ locale.language() === 'ar' ? 'English' : 'العربية' }}
+</button>
