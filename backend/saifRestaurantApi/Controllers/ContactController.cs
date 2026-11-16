@@ -26,18 +26,20 @@ public class ContactController(
             return BadRequest(new { message = "Enter a valid email address." });
         }
 
-        var formId = configuration["Contact:FormspreeFormId"]?.Trim();
-        if (string.IsNullOrEmpty(formId) || !formId.All(char.IsAsciiLetterOrDigit))
+        var accessKey = configuration["Contact:SilentFormsAccessKey"]?.Trim();
+        if (string.IsNullOrEmpty(accessKey))
         {
-            logger.LogWarning("The contact Formspree form ID is missing or invalid.");
+            logger.LogWarning("The contact SilentForms access key is missing.");
             return StatusCode(503, new { message = "Contact email is unavailable." });
         }
 
         using var client = httpClientFactory.CreateClient("ContactEmail");
-        using var submission = new HttpRequestMessage(HttpMethod.Post, $"https://formspree.io/f/{formId}");
+        using var submission = new HttpRequestMessage(HttpMethod.Post, "https://silentforms.com/api/submit");
         submission.Headers.Accept.ParseAdd("application/json");
         submission.Content = JsonContent.Create(new
         {
+            accessKey,
+            subject = "New message from Saif Restaurant",
             name = request.Name.Trim(),
             email = visitor.Address,
             phone = request.Phone?.Trim() ?? "",
@@ -51,7 +53,7 @@ public class ContactController(
             if (response.IsSuccessStatusCode)
                 return NoContent();
 
-            logger.LogWarning("Formspree did not confirm the contact submission (HTTP {StatusCode}).",
+            logger.LogWarning("SilentForms did not accept the contact submission (HTTP {StatusCode}).",
                 (int)response.StatusCode);
         }
         catch (HttpRequestException)
