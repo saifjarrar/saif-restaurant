@@ -34,7 +34,7 @@ I built the customer website, a separate workflow for restaurant staff, and the 
 | Authentication | ASP.NET Core Identity, JWT bearer tokens, Customer and Admin roles |
 | Data | Entity Framework Core, SQL Server or PostgreSQL via Npgsql, provider-specific migrations |
 | Hosting | Render Static Site, Docker web service, Neon PostgreSQL |
-| Contact delivery | Formspree over HTTPS |
+| Contact delivery | SilentForms over HTTPS |
 
 The browser calls the API over HTTPS in development and production, using the configured API URL. For authenticated calls, an Angular interceptor attaches the JWT. The API validates the token and role before accessing application data through EF Core.
 
@@ -141,10 +141,10 @@ Apply the PostgreSQL migrations before using a fresh database. If you deploy the
 | `ConnectionStrings__Postgres` | PostgreSQL connection string for the API |
 | `Jwt__Key` | Private signing key, at least 32 bytes for HS256 |
 | `Cors__AllowedOrigins__0` | Exact deployed frontend origin, without a trailing slash |
-| `Contact__FormspreeFormId` | Form ID from the contact form URL: `https://formspree.io/f/<form-id>` |
+| `Contact__SilentFormsAccessKey` | SilentForms access key for the verified recipient inbox |
 
-For contact email, create a form in [Formspree](https://formspree.io/), verify your inbox, and select it as the form's **Target Email**. Copy the form ID from **Integration**, set the environment variable above on the API service, and redeploy. The [free plan](https://formspree.io/plans) includes 50 submissions per month.
+For contact email, [request a free SilentForms access key](https://silentforms.com/get-access-key) for the recipient inbox and confirm the email. Add the key to the API service environment variable above and redeploy. The ASP.NET Core API posts the contact form to SilentForms over HTTPS.
 
-For local development, set `Contact:FormspreeFormId` in .NET User Secrets. Older Brevo and SMTP settings are no longer used. Keep passwords and database credentials in User Secrets locally and in Render environment settings in production.
+For local development, set `Contact:SilentFormsAccessKey` in .NET User Secrets. Keep passwords and database credentials in User Secrets locally and in Render environment settings in production.
 
 The menu and offers are currently defined in the frontend, while account, reservation, and order data are persisted by the API.
