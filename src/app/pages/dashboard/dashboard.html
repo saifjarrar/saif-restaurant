@@ -32,7 +32,7 @@
     </div>
 
     <div class="tickets">
-      @for (order of ordertickets(); track order.id) {
+     @for (order of ordertickets().filter(o => o.orderstatus.toLowerCase() !== 'cancelled'); track order.id) {
         @let status = order.orderstatus.toLowerCase();
         @let saving = savingOrderIds().includes(order.id);
 
