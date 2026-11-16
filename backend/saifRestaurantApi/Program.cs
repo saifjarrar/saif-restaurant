@@ -74,7 +74,10 @@ builder.Services.AddCors(options =>
 builder.Services.AddHttpClient("ContactEmail", client =>
 {
     client.Timeout = TimeSpan.FromSeconds(15);
-}).RedactLoggedHeaders(["api-key"]);
+}).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+{
+    AllowAutoRedirect = false
+});
 
 var app = builder.Build();
 
