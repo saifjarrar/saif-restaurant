@@ -27,20 +27,38 @@ public class DashboardController : ControllerBase
     [Authorize(Roles = SD.Role_Admin)]
     public async Task<IActionResult> Get()
     {
-        var tickets = await _db.OrderTickets.Include(t => t.Dishes).ToListAsync();
-        var today = DateTime.Today;
-        var tomorrow = today.AddDays(1);
+        // Define the business day using Jordan local time (midnight to midnight).
+        var jordanTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Amman");
+        var jordanNow = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, jordanTimeZone);
+        var jordanDayStart = new DateTime(
+            jordanNow.Year, jordanNow.Month, jordanNow.Day, 0, 0, 0,
+            DateTimeKind.Unspecified);
+        var jordanDayEnd = jordanDayStart.AddDays(1);
+
+        // Order timestamps are stored in UTC, so convert Jordan midnight boundaries to UTC.
+        var startUtc = new DateTimeOffset(
+            TimeZoneInfo.ConvertTimeToUtc(jordanDayStart, jordanTimeZone), TimeSpan.Zero);
+        var endUtc = new DateTimeOffset(
+            TimeZoneInfo.ConvertTimeToUtc(jordanDayEnd, jordanTimeZone), TimeSpan.Zero);
+
+        var tickets = await _db.OrderTickets
+            .Where(t => t.CreatedAt.HasValue &&
+                        t.CreatedAt.Value >= startUtc &&
+                        t.CreatedAt.Value < endUtc)
+            .Include(t => t.Dishes)
+            .ToListAsync();
 
         var todayReservations = await _db.Reservations
-            .Where(r => r.Date >= today && r.Date < tomorrow)
+            .Where(r => r.Date >= jordanDayStart && r.Date < jordanDayEnd)
             .ToListAsync();
 
         var reservations = todayReservations
             .OrderBy(r => ParseTime(r.Time))
             .ToList();
 
-
+        var todayOrderIds = tickets.Select(t => t.Id).ToList();
         var mostOrdered = await _db.OrderDishes
+            .Where(d => todayOrderIds.Contains(d.OrderTicketId))
             .GroupBy(d => d.Name)
             .Select(g => new MostOrdered { Name = g.Key, Quantity = g.Sum(d => d.Quantity) })
             .OrderByDescending(m => m.Quantity)
