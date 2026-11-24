@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Microsoft.IdentityModel.Tokens;
 using SaifRestaurantApi.Dto;
 using SaifRestaurantApi.Models;
@@ -15,49 +14,34 @@ using System.Text;
 namespace SaifRestaurantApi.Controllers
 {
     [ApiController]
-
     [Route("api/[Controller]")]
     public class AuthController : Controller
     {
-
         private readonly UserManager<AppUser> _userManager;
-
-        private readonly RoleManager<IdentityRole> _roleManager;
-
         private readonly IConfiguration _configuration;
 
-        private readonly ApiResponse _response;
-
-
-        public AuthController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
-
+        public AuthController(
+            UserManager<AppUser> userManager,
+            IConfiguration configuration)
         {
-
             _userManager = userManager;
-
-            _roleManager = roleManager;
-
-            this._configuration = configuration;
-
-            _response = new ApiResponse();
-
+            _configuration = configuration;
         }
 
-
         [HttpPost("register")]
-
-
         public async Task<IActionResult> Register([FromBody] RegisterDto model)
-
         {
-
-            if (await _userManager.FindByEmailAsync(model.Email) != null ||
-                await _userManager.FindByNameAsync(model.Email) != null)
+            // UserName is set to Email, so one lookup is sufficient.
+            if (await _userManager.FindByEmailAsync(model.Email) is not null)
             {
                 return AccountAlreadyExists();
             }
 
-            var user = new AppUser { UserName = model.Email, Email = model.Email };
+            var user = new AppUser
+            {
+                UserName = model.Email,
+                Email = model.Email
+            };
 
             IdentityResult result;
             try
@@ -65,213 +49,114 @@ namespace SaifRestaurantApi.Controllers
                 result = await _userManager.CreateAsync(user, model.password);
             }
             catch (DbUpdateException ex) when (
-                ex.InnerException is SqlException sqlException &&
-                sqlException.Number == 2601 &&
-                sqlException.Message.Contains("'UserNameIndex'", StringComparison.Ordinal))
+                ex.InnerException is PostgresException postgresException &&
+                postgresException.SqlState == PostgresErrorCodes.UniqueViolation)
             {
+                // Handles two simultaneous registrations for the same email.
                 return AccountAlreadyExists();
             }
 
             if (!result.Succeeded)
-
             {
-
-                _response.Status = HttpStatusCode.BadRequest;
-
-                _response.IsSuccess = false;
-
-                _response.Errors.AddRange(
-
-                    result.Errors.Select(e => e.Description)
-
-                );
-
-
-                return BadRequest(_response);
-
-
-
-            }
-
-            // make sure both roles exist (before, it checked Admin but created Customer)
-            foreach (var roleName in new[] { SD.Role_Admin, SD.Role_Customer })
-            {
-                if (!await _roleManager.RoleExistsAsync(roleName))
+                var response = new ApiResponse
                 {
-                    await _roleManager.CreateAsync(new IdentityRole(roleName));
-                }
+                    Status = HttpStatusCode.BadRequest,
+                    IsSuccess = false
+                };
+                response.Errors.AddRange(result.Errors.Select(error => error.Description));
+                return BadRequest(response);
             }
 
-
-
-            var roleResult = await _userManager.AddToRoleAsync(
-
-                user,
-
-                SD.Role_Customer
-
-            );
-
-            _response.Status = HttpStatusCode.OK;
-
-            _response.IsSuccess = true;
-
-            _response.Result = new
+            // Roles are created once during application startup, not on every registration.
+            var roleResult = await _userManager.AddToRoleAsync(user, SD.Role_Customer);
+            if (!roleResult.Succeeded)
             {
+                var response = new ApiResponse
+                {
+                    Status = HttpStatusCode.InternalServerError,
+                    IsSuccess = false
+                };
+                response.Errors.AddRange(roleResult.Errors.Select(error => error.Description));
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
 
-                message = "Account created successfully"
+            var successResponse = new ApiResponse
+            {
+                Status = HttpStatusCode.OK,
+                IsSuccess = true,
+                Result = new { message = "Account created successfully" }
             };
 
-
-            return Ok(_response);
-
+            return Ok(successResponse);
         }
 
         private IActionResult AccountAlreadyExists()
         {
-            _response.Status = HttpStatusCode.BadRequest;
-            _response.IsSuccess = false;
-            _response.Errors.Add("An account with this email already exists. Please log in.");
-            return BadRequest(_response);
+            var response = new ApiResponse
+            {
+                Status = HttpStatusCode.BadRequest,
+                IsSuccess = false
+            };
+            response.Errors.Add("An account with this email already exists. Please log in.");
+            return BadRequest(response);
         }
 
         [HttpPost("login")]
-
-        public async Task<IActionResult> Login(
-
-            [FromBody] LoginRequestDto model)
-
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto model)
         {
-
             var response = new ApiResponse();
-
-
             var user = await _userManager.FindByEmailAsync(model.Email);
 
-
-            if (user == null ||
-
-                !await _userManager.CheckPasswordAsync(
-
-                    user,
-
-                    model.password))
-
+            if (user is null || !await _userManager.CheckPasswordAsync(user, model.password))
             {
-
                 response.Status = HttpStatusCode.Unauthorized;
-
                 response.IsSuccess = false;
-
                 response.Errors.Add("Invalid email or password");
-
-
                 return Unauthorized(response);
-
             }
-
 
             var roles = await _userManager.GetRolesAsync(user);
-
-
             var claims = new List<Claim>
-
-        {
-
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-
-            new Claim(
-
-                ClaimTypes.Name,
-
-                user.UserName ?? user.Email ?? ""            ),
-
-            new Claim(ClaimTypes.Email, user.Email ?? "")
-
-        };
-
-
-            foreach (var role in roles)
-
             {
+                new(ClaimTypes.NameIdentifier, user.Id),
+                new(ClaimTypes.Name, user.UserName ?? user.Email ?? ""),
+                new(ClaimTypes.Email, user.Email ?? "")
+            };
 
-                claims.Add(new Claim(ClaimTypes.Role, role));
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-            }
-
-
-            var key = _configuration["Jwt:Key"]!;
-
+            var key = _configuration["Jwt:Key"]
+                ?? throw new InvalidOperationException("Jwt:Key is missing.");
             var issuer = _configuration["Jwt:Issuer"]!;
-
             var audience = _configuration["Jwt:Audience"]!;
+            var expiryMinutes = int.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "60");
 
-
-            var expiryMinutes = int.Parse(
-
-                _configuration["Jwt:ExpiryMinutes"] ?? "60");
-
-
-            var signingKey = new SymmetricSecurityKey(
-
-                Encoding.UTF8.GetBytes(key)
-
-            );
-
-
-            var credentials = new SigningCredentials(
-
-                signingKey,
-
-                SecurityAlgorithms.HmacSha256
-
-            );
-
-
+            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
             var expiresAt = DateTime.UtcNow.AddMinutes(expiryMinutes);
 
-
             var token = new JwtSecurityToken(
-
                 issuer: issuer,
-
                 audience: audience,
-
                 claims: claims,
-
                 expires: expiresAt,
-
                 signingCredentials: credentials);
-
 
             var loginResponse = new LoginResponseDto
             {
-
                 Email = user.Email ?? "",
-
-                Token = new JwtSecurityTokenHandler()
-
-                    .WriteToken(token),
-
-                // if the user has the Admin role, always return Admin
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
                 Role = roles.Contains(SD.Role_Admin)
                     ? SD.Role_Admin
                     : roles.FirstOrDefault() ?? "",
-
                 ExpiersAt = expiresAt
             };
 
-
             response.Status = HttpStatusCode.OK;
-
             response.IsSuccess = true;
-
             response.Result = loginResponse;
 
-
             return Ok(response);
-
         }
-
     }
 }
