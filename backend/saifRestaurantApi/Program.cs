@@ -27,7 +27,12 @@ else
         options.UseNpgsql(postgresConnection));
 }
 
-builder.Services.AddIdentity<AppUser, IdentityRole>()
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+{
+    options.Lockout.AllowedForNewUsers = true;
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+})
     .AddEntityFrameworkStores<AppDBContext>();
 
 var jwtkey = builder.Configuration["Jwt:Key"]
