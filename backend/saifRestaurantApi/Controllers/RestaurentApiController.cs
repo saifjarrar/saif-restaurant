@@ -101,7 +101,7 @@ public class DashboardController : ControllerBase
         {
             new RestaurantInfo { Title = "Orders today", Value = tickets.Count.ToString(), Describe = "Orders on the board", Color = "up" },
             new RestaurantInfo { Title = "Reservations", Value = reservations.Count.ToString(), Describe = "Booked for tonight", Color = "" },
-            new RestaurantInfo { Title = "Sales", Value = $"{todaySales:N2}", Change = salesChangeText, Describe = salesDescription, Color = salesChange > 0 || (lastWeekSales == 0 && todaySales > 0) ? "up" : "" },
+            new RestaurantInfo { Title = "Sales", Value = $"${todaySales:N2}", Change = salesChangeText, Describe = salesDescription, Color = salesChange > 0 || (lastWeekSales == 0 && todaySales > 0) ? "up" : "" },
             new RestaurantInfo { Title = "Guest rating", Value = "4.5", Describe = "Average rating from customers", Color = "" },
         },
         });
