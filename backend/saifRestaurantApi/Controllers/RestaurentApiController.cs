@@ -41,6 +41,33 @@ public class DashboardController : ControllerBase
         var endUtc = new DateTimeOffset(
             TimeZoneInfo.ConvertTimeToUtc(jordanDayEnd, jordanTimeZone), TimeSpan.Zero);
 
+        // Sales are calculated from persisted order totals. Cancelled orders are excluded,
+        // so cancelling an order automatically removes its value from the dashboard.
+        var lastWeekStartUtc = startUtc.AddDays(-7);
+        var lastWeekEndUtc = endUtc.AddDays(-7);
+        var todaySales = await _db.OrderTickets
+            .Where(t => t.CreatedAt.HasValue &&
+                        t.CreatedAt.Value >= startUtc &&
+                        t.CreatedAt.Value < endUtc &&
+                        t.Orderstatus != "Cancelled")
+            .SumAsync(t => t.Total ?? 0m);
+        var lastWeekSales = await _db.OrderTickets
+            .Where(t => t.CreatedAt.HasValue &&
+                        t.CreatedAt.Value >= lastWeekStartUtc &&
+                        t.CreatedAt.Value < lastWeekEndUtc &&
+                        t.Orderstatus != "Cancelled")
+            .SumAsync(t => t.Total ?? 0m);
+
+        var salesChange = lastWeekSales > 0
+            ? (todaySales - lastWeekSales) / lastWeekSales * 100m
+            : 0m;
+        var salesChangeText = lastWeekSales > 0
+            ? $"{(salesChange > 0 ? "+" : "")}{salesChange:0.#}%"
+            : todaySales > 0 ? "New" : "0%";
+        var salesDescription = lastWeekSales == 0 && todaySales == 0
+            ? "No sales on same day last week"
+            : "compared with same day last week";
+
         var tickets = await _db.OrderTickets
             .Where(t => t.CreatedAt.HasValue &&
                         t.CreatedAt.Value >= startUtc &&
@@ -74,7 +101,7 @@ public class DashboardController : ControllerBase
         {
             new RestaurantInfo { Title = "Orders today", Value = tickets.Count.ToString(), Describe = "Orders on the board", Color = "up" },
             new RestaurantInfo { Title = "Reservations", Value = reservations.Count.ToString(), Describe = "Booked for tonight", Color = "" },
-            new RestaurantInfo { Title = "Sales", Value = "$1,250", Describe = "8% more than last Monday", Color = "up" },
+            new RestaurantInfo { Title = "Sales", Value = $"{todaySales:N2}", Change = salesChangeText, Describe = salesDescription, Color = salesChange > 0 || (lastWeekSales == 0 && todaySales > 0) ? "up" : "" },
             new RestaurantInfo { Title = "Guest rating", Value = "4.5", Describe = "Average rating from customers", Color = "" },
         },
         });
