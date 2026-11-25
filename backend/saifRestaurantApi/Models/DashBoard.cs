@@ -12,6 +12,7 @@
         public string Title { get; set; } = string.Empty;
         public string Value { get; set; } = string.Empty;
         public string Describe { get; set; } = string.Empty;
+        public string Change { get; set; } = string.Empty;
         public string Color { get; set; } = string.Empty;
     }
     public class OrderTicket
