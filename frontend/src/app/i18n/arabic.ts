@@ -340,6 +340,7 @@ const phrases = {
   "A strong and flavorful coffee made with finely ground coffee beans and served in a small cup.": "قهوة تركية مطحونة ناعمًا تُقدّم بفنجان صغير.",
   "A traditional tea made with black tea leaves, cardamom, and served with sugar and mint.": "شاي أسود بالهيل والسكر والنعناع.",
   "A refreshing lemonade infused with rose water, served over ice.": "ليمونادة بماء الورد تُقدّم مع الثلج.",
+  "Your reservation summary": "ملخص حجزك",
   "Table 1": "طاولة 1",
   "Table 2": "طاولة 2",
   "Table 3": "طاولة 3",
