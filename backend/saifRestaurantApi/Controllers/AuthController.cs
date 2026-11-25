@@ -10,7 +10,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
-
 namespace SaifRestaurantApi.Controllers
 {
     [ApiController]
@@ -107,13 +106,34 @@ namespace SaifRestaurantApi.Controllers
             var response = new ApiResponse();
             var user = await _userManager.FindByEmailAsync(model.Email);
 
-            if (user is null || !await _userManager.CheckPasswordAsync(user, model.password))
+            if (user is null)
             {
                 response.Status = HttpStatusCode.Unauthorized;
                 response.IsSuccess = false;
                 response.Errors.Add("Invalid email or password");
                 return Unauthorized(response);
             }
+
+            if (await _userManager.IsLockedOutAsync(user))
+            {
+                response.Status = (HttpStatusCode)StatusCodes.Status423Locked;
+                response.IsSuccess = false;
+                response.Errors.Add("Account is locked due to too many failed login attempts. Try again in 10 minutes.");
+                return StatusCode(StatusCodes.Status423Locked, response);
+            }
+
+            if (!await _userManager.CheckPasswordAsync(user, model.password))
+            {
+                await _userManager.AccessFailedAsync(user);
+
+                response.Status = HttpStatusCode.Unauthorized;
+                response.IsSuccess = false;
+                response.Errors.Add("Invalid email or password");
+                return Unauthorized(response);
+            }
+
+            // A successful login clears the failed-attempt counter.
+            await _userManager.ResetAccessFailedCountAsync(user);
 
             var roles = await _userManager.GetRolesAsync(user);
             var claims = new List<Claim>
